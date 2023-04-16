@@ -9,14 +9,27 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	var requestBody SessionRequest
 	json.NewDecoder(r.Body).Decode(&requestBody)
 
-	queryResult := Authenticate(requestBody.Id, requestBody.Password)
+	queryResult, err := Authenticate(requestBody.Id, requestBody.Password)
 
-	var sessionResponse SessionResponse
-	if queryResult {
-		sessionResponse = SessionResponse{Token: "valid"}
-	} else {
-		sessionResponse = SessionResponse{Token: "invalid"}
+	if err != nil {
+		http.Error(w, "Authentication Failure", http.StatusInternalServerError)
+		return
 	}
+
+	if queryResult == false {
+		http.Error(w, "Authentication Failure", http.StatusUnauthorized)
+		return
+	}
+
+	signingResult, err := GenerateJwt(requestBody.Id)
+
+	if err != nil {
+		http.Error(w, "Signing Failure", http.StatusInternalServerError)
+		panic(err)
+		return
+	}
+
+	sessionResponse := SessionResponse{Token: signingResult}
 
 	responseBody, _ := json.Marshal(&sessionResponse)
 

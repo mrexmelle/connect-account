@@ -1,4 +1,4 @@
-package session
+package bprof
 
 import (
 	"errors"
@@ -10,27 +10,33 @@ import (
 	"gorm.io/gorm"
 )
 
-func Authenticate(req SessionPostRequest) (bool, error) {
+func Create(bp BasicProfilePostRequest) (string, error) {
 	dsn := "host=127.0.0.1 user=iam password=123 dbname=iam port=5432 sslmode=disable TimeZone=Asia/Jakarta"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
 	var idResult string
 
-	err = db.
-		Select("employee_id").
-		Table("credentials").
-		Where("employee_id = ? AND password_hash = CRYPT(?, password_hash)", req.EmployeeId, req.Password).
-		Row().
-		Scan(&idResult)
+	res := db.Exec(
+		"INSERT INTO basic_profiles(employee_id_hash, name, dob, \
+			created_at, updated_at) \
+			VALUES(ENCODE(SHA256(?), 'hex'), ?, ?, NOW(), NOW())",
+		bp.EmployeeId,
+		bp.Name,
+		datatypes.Date(time.Parse("YYYY-MM-DD", bp.Dob)),
+	)
 
-	return (idResult == req.EmployeeId), err
+	if res.Error != nil {
+
+	}
+
+	return (idResult == id), err
 }
 
-func GenerateJwt(employeeId string) (string, error) {
+func GenerateJwt(id string) (string, error) {
 	secret := "1nt3rst3ll4r-*-a5tR0"
 
 	signingKey := jose.SigningKey{
@@ -50,7 +56,7 @@ func GenerateJwt(employeeId string) (string, error) {
 	now := time.Now()
 
 	claim := jwt.Claims{
-		Subject:   employeeId,
+		Subject:   id,
 		Issuer:    "connect-iam",
 		NotBefore: jwt.NewNumericDate(now),
 		Expiry:    jwt.NewNumericDate(now.Add(time.Minute * 3)),

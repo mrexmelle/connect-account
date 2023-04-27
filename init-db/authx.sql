@@ -4,35 +4,36 @@ CREATE EXTENSION pgcrypto;
 CREATE TABLE IF NOT EXISTS credentials(
 	employee_id TEXT NOT NULL,
 	password_hash TEXT NOT NULL,
-	created_at TIMESTAMPTZ,
-	updated_at TIMESTAMPTZ,
+	created_at TIMESTAMPTZ NOT NULL,
+	updated_at TIMESTAMPTZ NOT NULL,
+	deleted_at TIMESTAMPTZ DEFAULT NULL,
 	CONSTRAINT PK_CREDENTIALS PRIMARY KEY(employee_id)
 );
 
-INSERT INTO credentials(employee_id, password_hash, created_at, updated_at) VALUES(
-	'AST-00340',
-	CRYPT('abc123', GEN_SALT('bf', 8)),
-	NOW(),
-	NOW()
-);
-
-CREATE TABLE IF NOT EXISTS basic_profiles(
-	employee_id_hash TEXT NOT NULL,
+CREATE TABLE IF NOT EXISTS profiles(
+	ehid TEXT NOT NULL,
 	name TEXT NOT NULL,
-	dob DATE,
-	created_at TIMESTAMPTZ,
-	updated_at TIMESTAMPTZ,
-	CONSTRAINT PK_BASIC_PROFILES PRIMARY KEY(employee_id_hash)
+	dob DATE NOT NULL,
+	created_at TIMESTAMPTZ NOT NULL,
+	updated_at TIMESTAMPTZ NOT NULL,
+	CONSTRAINT PK_PROFILES PRIMARY KEY(ehid)
 );
 
-CREATE TABLE IF NOT EXISTS work_profiles(
-	employee_id_hash TEXT NOT NULL,
+CREATE TABLE IF NOT EXISTS tenures(
+	id SERIAL,
+	ehid TEXT NOT NULL,
 	employee_id TEXT NOT NULL,
-	work_email_address TEXT,
 	start_date DATE NOT NULL,
-	end_date DATE,
+	end_date DATE DEFAULT NULL,
 	employment_type TEXT,
-	created_at TIMESTAMPTZ,
-	updated_at TIMESTAMPTZ,
-	CONSTRAINT PK_WORK_PROFILES PRIMARY KEY(employee_id_hash)
+	created_at TIMESTAMPTZ NOT NULL,
+	updated_at TIMESTAMPTZ NOT NULL,
+	CONSTRAINT UK_WORK_PROFILES UNIQUE(ehid, start_date),
+	CONSTRAINT PK_WORK_PROFILES PRIMARY KEY(id)
+);
+
+CREATE TABLE IF NOT EXISTS ktps(
+	id TEXT NOT NULL,
+	ehid TEXT NOT NULL,
+	CONSTRAINT PK_KTPS PRIMARY KEY(id)
 );

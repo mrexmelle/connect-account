@@ -25,7 +25,6 @@ func Post(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, "Signing Failure", http.StatusInternalServerError)
-		panic(err)
 		return
 	}
 

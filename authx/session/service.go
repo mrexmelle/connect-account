@@ -1,11 +1,12 @@
 package session
 
 import (
-	"errors"
+	"crypto/sha256"
+	"fmt"
 	"time"
 
-	"github.com/go-jose/go-jose/v3"
-	"github.com/go-jose/go-jose/v3/jwt"
+	"github.com/go-chi/jwtauth"
+	"github.com/mrexmelle/connect-iam/authx/credential"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -18,50 +19,38 @@ func Authenticate(req SessionPostRequest) (bool, error) {
 		return false, err
 	}
 
-	var idResult string
-
-	err = db.
-		Select("employee_id").
-		Table("credentials").
-		Where("employee_id = ? AND password_hash = CRYPT(?, password_hash)", req.EmployeeId, req.Password).
-		Row().
-		Scan(&idResult)
-
-	return (idResult == req.EmployeeId), err
+	cred := credential.CredentialAuthRequest{
+		req.EmployeeId,
+		req.Password,
+	}
+	return credential.Authenticate(cred, db)
 }
 
 func GenerateJwt(employeeId string) (string, error) {
-	secret := "1nt3rst3ll4r-*-a5tR0"
+	authenticator := jwtauth.New("HS256", []byte("1nt3rst3ll4r-*-a5tR0"), nil)
 
-	signingKey := jose.SigningKey{
-		Algorithm: jose.HS256,
-		Key:       []byte(secret),
-	}
-
-	sig, err := jose.NewSigner(
-		signingKey,
-		(&jose.SignerOptions{}).WithType("JWT"),
+	now := time.Now()
+	_, token, err := authenticator.Encode(
+		map[string]interface{}{
+			"aud": "connect-iam",
+			"exp": now.Add(time.Hour * 3).Unix(),
+			"iat": now.Unix(),
+			"iss": "connect-iam",
+			"nbf": now.Unix(),
+			"sub": GenerateEhid(employeeId),
+		},
 	)
 
 	if err != nil {
 		return "", err
 	}
 
-	now := time.Now()
+	return token, nil
+}
 
-	claim := jwt.Claims{
-		Subject:   employeeId,
-		Issuer:    "connect-iam",
-		NotBefore: jwt.NewNumericDate(now),
-		Expiry:    jwt.NewNumericDate(now.Add(time.Minute * 3)),
-		Audience:  jwt.Audience{"connect-iam"},
-	}
+func GenerateEhid(employeeId string) string {
+	hasher := sha256.New()
+	hasher.Write([]byte(employeeId))
 
-	raw, err := jwt.Signed(sig).Claims(claim).CompactSerialize()
-
-	if err != nil {
-		return "", errors.New("Claim cannot be signed")
-	}
-
-	return raw, nil
+	return fmt.Sprintf("u%x", hasher.Sum(nil))
 }

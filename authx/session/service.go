@@ -5,29 +5,36 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-chi/jwtauth"
+	"github.com/mrexmelle/connect-iam/authx/config"
 	"github.com/mrexmelle/connect-iam/authx/credential"
-	"gorm.io/gorm"
 )
 
-func Authenticate(req SessionPostRequest, db *gorm.DB) (bool, error) {
+type Service struct {
+	Config *config.Config
+}
+
+func NewService(cfg *config.Config) Service {
+	return Service{Config: cfg}
+}
+
+func (s *Service) Authenticate(req SessionPostRequest) (bool, error) {
 	cred := credential.CredentialAuthRequest{
 		req.EmployeeId,
 		req.Password,
 	}
-	return credential.Authenticate(cred, db)
+	return credential.Authenticate(cred, s.Config.Db)
 }
 
-func GenerateJwt(employeeId string, tokenAuth *jwtauth.JWTAuth) (string, error) {
+func (s *Service) GenerateJwt(employeeId string) (string, error) {
 	now := time.Now()
-	_, token, err := tokenAuth.Encode(
+	_, token, err := s.Config.TokenAuth.Encode(
 		map[string]interface{}{
 			"aud": "connect-iam",
 			"exp": now.Add(time.Hour * 3).Unix(),
 			"iat": now.Unix(),
 			"iss": "connect-iam",
 			"nbf": now.Unix(),
-			"sub": GenerateEhid(employeeId),
+			"sub": s.GenerateEhid(employeeId),
 		},
 	)
 
@@ -38,7 +45,7 @@ func GenerateJwt(employeeId string, tokenAuth *jwtauth.JWTAuth) (string, error) 
 	return token, nil
 }
 
-func GenerateEhid(employeeId string) string {
+func (s *Service) GenerateEhid(employeeId string) string {
 	hasher := sha256.New()
 	hasher.Write([]byte(employeeId))
 

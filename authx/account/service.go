@@ -5,16 +5,24 @@ import (
 	"fmt"
 
 	"github.com/jinzhu/copier"
+	"github.com/mrexmelle/connect-iam/authx/config"
 	"github.com/mrexmelle/connect-iam/authx/credential"
 	"github.com/mrexmelle/connect-iam/authx/profile"
 	"github.com/mrexmelle/connect-iam/authx/tenure"
-	"gorm.io/gorm"
 )
 
-func Register(req AccountPostRequest, db *gorm.DB) error {
+type Service struct {
+	Config *config.Config
+}
+
+func NewService(cfg *config.Config) Service {
+	return Service{Config: cfg}
+}
+
+func (s *Service) Register(req AccountPostRequest) error {
 	cred, bp, emp := Disperse(req)
 
-	trx := db.Begin()
+	trx := s.Config.Db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			trx.Rollback()
@@ -78,18 +86,18 @@ func GenerateEhid(employeeId string) string {
 	return fmt.Sprintf("u%x", hasher.Sum(nil))
 }
 
-func UpdateEndDate(tenureId int, ehid string, req AccountPatchRequest, db *gorm.DB) error {
+func (s *Service) UpdateEndDate(ehid string, tenureId int, req AccountPatchRequest) error {
 	data := tenure.TenureUpdateEndDateRequest{
 		Id:      tenureId,
 		Ehid:    ehid,
 		EndDate: req.Value,
 	}
 
-	return tenure.UpdateEndDate(data, db)
+	return tenure.UpdateEndDate(data, s.Config.Db)
 }
 
-func RetrieveProfile(ehid string, db *gorm.DB) (AccountGetProfileResponse, error) {
-	result, err := profile.Retrieve(ehid, db)
+func (s *Service) RetrieveProfile(ehid string) (AccountGetProfileResponse, error) {
+	result, err := profile.Retrieve(ehid, s.Config.Db)
 
 	if err != nil {
 		return AccountGetProfileResponse{}, err
@@ -104,8 +112,8 @@ func RetrieveProfile(ehid string, db *gorm.DB) (AccountGetProfileResponse, error
 	return data, nil
 }
 
-func RetrieveTenures(ehid string, db *gorm.DB) (AccountGetTenureResponse, error) {
-	result, err := tenure.Retrieve(ehid, db)
+func (s *Service) RetrieveTenures(ehid string) (AccountGetTenureResponse, error) {
+	result, err := tenure.Retrieve(ehid, s.Config.Db)
 
 	if err != nil {
 		return AccountGetTenureResponse{}, err

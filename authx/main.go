@@ -8,10 +8,10 @@ import (
 	"github.com/mrexmelle/connect-iam/authx/account"
 	"github.com/mrexmelle/connect-iam/authx/config"
 	"github.com/mrexmelle/connect-iam/authx/session"
+	"go.uber.org/dig"
 )
 
-func main() {
-
+func Config() *config.Config {
 	cfg, err := config.New(
 		"authx", "yaml",
 		[]string{
@@ -22,33 +22,53 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	return &cfg
+}
 
-	r := chi.NewRouter()
+func main() {
+	container := dig.New()
+	container.Provide(Config)
+	container.Provide(account.NewService)
+	container.Provide(session.NewService)
+	container.Provide(account.NewController)
+	container.Provide(session.NewController)
 
-	r.Route("/accounts", func(r chi.Router) {
-		r.Post("/", account.Post(&cfg))
-		r.Patch("/{ehid}/tenures/{tenureId}/endDate", account.PatchEndDate(&cfg))
-	})
+	process := func(
+		accountController *account.Controller,
+		sessionController *session.Controller,
+		config *config.Config,
+	) {
+		r := chi.NewRouter()
 
-	r.Route("/sessions", func(r chi.Router) {
-		r.Post("/", session.Post(&cfg))
-	})
-
-	r.Group(func(r chi.Router) {
-		r.Use(jwtauth.Verifier(cfg.TokenAuth))
-
-		r.Route("/accounts/me/profile", func(r chi.Router) {
-			r.Get("/", account.GetMyProfile(&cfg))
+		r.Route("/accounts", func(r chi.Router) {
+			r.Post("/", accountController.Post)
+			r.Patch("/{ehid}/tenures/{tenureId}/end-date", accountController.PatchEndDate)
 		})
 
-		r.Route("/accounts/me/tenures", func(r chi.Router) {
-			r.Get("/", account.GetMyTenures(&cfg))
+		r.Route("/sessions", func(r chi.Router) {
+			r.Post("/", sessionController.Post)
 		})
-	})
 
-	err = http.ListenAndServe(":8080", r)
+		r.Group(func(r chi.Router) {
+			r.Use(jwtauth.Verifier(config.TokenAuth))
 
-	if err != nil {
+			r.Route("/accounts/me/profile", func(r chi.Router) {
+				r.Get("/", accountController.GetMyProfile)
+			})
+
+			r.Route("/accounts/me/tenures", func(r chi.Router) {
+				r.Get("/", accountController.GetMyTenures)
+			})
+		})
+
+		err := http.ListenAndServe(":8080", r)
+
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if err := container.Invoke(process); err != nil {
 		panic(err)
 	}
 }

@@ -19,7 +19,6 @@ func main() {
 			"./config",
 		},
 	)
-
 	if err != nil {
 		panic(err)
 	}
@@ -36,8 +35,7 @@ func main() {
 	})
 
 	r.Group(func(r chi.Router) {
-		secretToken := jwtauth.New("HS256", []byte(cfg.JwtSecret), nil)
-		r.Use(jwtauth.Verifier(secretToken))
+		r.Use(jwtauth.Verifier(cfg.TokenAuth))
 
 		r.Route("/accounts/me/profile", func(r chi.Router) {
 			r.Get("/", account.GetMyProfile(&cfg))

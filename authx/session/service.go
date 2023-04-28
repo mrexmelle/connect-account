@@ -7,17 +7,10 @@ import (
 
 	"github.com/go-chi/jwtauth"
 	"github.com/mrexmelle/connect-iam/authx/credential"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func Authenticate(req SessionPostRequest, dsn string) (bool, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		return false, err
-	}
-
+func Authenticate(req SessionPostRequest, db *gorm.DB) (bool, error) {
 	cred := credential.CredentialAuthRequest{
 		req.EmployeeId,
 		req.Password,
@@ -25,11 +18,9 @@ func Authenticate(req SessionPostRequest, dsn string) (bool, error) {
 	return credential.Authenticate(cred, db)
 }
 
-func GenerateJwt(employeeId string, jwtSecret string) (string, error) {
-	authenticator := jwtauth.New("HS256", []byte(jwtSecret), nil)
-
+func GenerateJwt(employeeId string, tokenAuth *jwtauth.JWTAuth) (string, error) {
 	now := time.Now()
-	_, token, err := authenticator.Encode(
+	_, token, err := tokenAuth.Encode(
 		map[string]interface{}{
 			"aud": "connect-iam",
 			"exp": now.Add(time.Hour * 3).Unix(),

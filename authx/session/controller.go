@@ -12,7 +12,7 @@ func Post(config *config.Config) http.HandlerFunc {
 		var requestBody SessionPostRequest
 		json.NewDecoder(r.Body).Decode(&requestBody)
 
-		queryResult, err := Authenticate(requestBody, config.Dsn)
+		queryResult, err := Authenticate(requestBody, config.Db)
 
 		if err != nil {
 			http.Error(w, "Authentication Failure", http.StatusInternalServerError)
@@ -24,7 +24,7 @@ func Post(config *config.Config) http.HandlerFunc {
 			return
 		}
 
-		signingResult, err := GenerateJwt(requestBody.EmployeeId, config.JwtSecret)
+		signingResult, err := GenerateJwt(requestBody.EmployeeId, config.TokenAuth)
 
 		if err != nil {
 			http.Error(w, "Signing Failure", http.StatusInternalServerError)

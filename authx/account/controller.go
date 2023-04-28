@@ -15,7 +15,7 @@ func Post(config *config.Config) http.HandlerFunc {
 		var requestBody AccountPostRequest
 		json.NewDecoder(r.Body).Decode(&requestBody)
 
-		err := Register(requestBody, config.Dsn)
+		err := Register(requestBody, config.Db)
 
 		if err != nil {
 			http.Error(w, "Registration Failure: "+err.Error(), http.StatusInternalServerError)
@@ -41,7 +41,7 @@ func PatchEndDate(config *config.Config) http.HandlerFunc {
 			http.Error(w, "Patching endDate Failure: "+err.Error(), http.StatusBadRequest)
 		}
 
-		err = UpdateEndDate(tenureId, ehid, requestBody, config.Dsn)
+		err = UpdateEndDate(tenureId, ehid, requestBody, config.Db)
 		if err != nil {
 			http.Error(w, "Patching endDate Failure: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -62,7 +62,7 @@ func GetMyProfile(config *config.Config) http.HandlerFunc {
 			http.Error(w, "Verification Failure: "+err.Error(), http.StatusUnauthorized)
 			return
 		}
-		res, err := RetrieveProfile(claims["sub"].(string), config.Dsn)
+		res, err := RetrieveProfile(claims["sub"].(string), config.Db)
 
 		responseBody, _ := json.Marshal(
 			&res,
@@ -79,7 +79,7 @@ func GetMyTenures(config *config.Config) http.HandlerFunc {
 			http.Error(w, "Verification Failure: "+err.Error(), http.StatusUnauthorized)
 			return
 		}
-		res, err := RetrieveTenures(claims["sub"].(string), config.Dsn)
+		res, err := RetrieveTenures(claims["sub"].(string), config.Db)
 
 		responseBody, _ := json.Marshal(
 			&res,

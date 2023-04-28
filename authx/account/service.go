@@ -8,17 +8,10 @@ import (
 	"github.com/mrexmelle/connect-iam/authx/credential"
 	"github.com/mrexmelle/connect-iam/authx/profile"
 	"github.com/mrexmelle/connect-iam/authx/tenure"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func Register(req AccountPostRequest, dsn string) error {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		return err
-	}
-
+func Register(req AccountPostRequest, db *gorm.DB) error {
 	cred, bp, emp := Disperse(req)
 
 	trx := db.Begin()
@@ -32,7 +25,7 @@ func Register(req AccountPostRequest, dsn string) error {
 		return trx.Error
 	}
 
-	err = credential.Create(cred, trx)
+	err := credential.Create(cred, trx)
 	if err != nil {
 		trx.Rollback()
 		return err
@@ -85,13 +78,7 @@ func GenerateEhid(employeeId string) string {
 	return fmt.Sprintf("u%x", hasher.Sum(nil))
 }
 
-func UpdateEndDate(tenureId int, ehid string, req AccountPatchRequest, dsn string) error {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		return err
-	}
-
+func UpdateEndDate(tenureId int, ehid string, req AccountPatchRequest, db *gorm.DB) error {
 	data := tenure.TenureUpdateEndDateRequest{
 		Id:      tenureId,
 		Ehid:    ehid,
@@ -101,13 +88,7 @@ func UpdateEndDate(tenureId int, ehid string, req AccountPatchRequest, dsn strin
 	return tenure.UpdateEndDate(data, db)
 }
 
-func RetrieveProfile(ehid string, dsn string) (AccountGetProfileResponse, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		return AccountGetProfileResponse{}, err
-	}
-
+func RetrieveProfile(ehid string, db *gorm.DB) (AccountGetProfileResponse, error) {
 	result, err := profile.Retrieve(ehid, db)
 
 	if err != nil {
@@ -123,13 +104,7 @@ func RetrieveProfile(ehid string, dsn string) (AccountGetProfileResponse, error)
 	return data, nil
 }
 
-func RetrieveTenures(ehid string, dsn string) (AccountGetTenureResponse, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		return AccountGetTenureResponse{}, err
-	}
-
+func RetrieveTenures(ehid string, db *gorm.DB) (AccountGetTenureResponse, error) {
 	result, err := tenure.Retrieve(ehid, db)
 
 	if err != nil {

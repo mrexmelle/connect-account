@@ -3,12 +3,15 @@ package config
 import (
 	"strings"
 
+	"github.com/go-chi/jwtauth"
 	"github.com/spf13/viper"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type Config struct {
-	Dsn       string
-	JwtSecret string
+	Db        *gorm.DB
+	TokenAuth *jwtauth.JWTAuth
 }
 
 func New(
@@ -23,20 +26,29 @@ func New(
 	}
 	err := viper.ReadInConfig()
 	if err != nil {
-		return Config{}, nil
+		return Config{}, err
 	}
 
-	datasource := viper.GetStringMapString("app.datasource")
 	var dsn = ""
-	for key, value := range datasource {
+	for key, value := range viper.GetStringMapString("app.datasource") {
 		dsn += string(key + "=" + value + " ")
 	}
-	dsn = strings.TrimSpace(dsn)
+	db, err := gorm.Open(
+		postgres.Open(strings.TrimSpace(dsn)),
+		&gorm.Config{},
+	)
+	if err != nil {
+		return Config{}, err
+	}
 
-	jwtSecret := viper.GetString("app.security.jwt-secret")
+	jwta := jwtauth.New(
+		"HS256",
+		[]byte(viper.GetString("app.security.jwt-secret")),
+		nil,
+	)
 
 	return Config{
-		Dsn:       dsn,
-		JwtSecret: jwtSecret,
+		Db:        db,
+		TokenAuth: jwta,
 	}, nil
 }

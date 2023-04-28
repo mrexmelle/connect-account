@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 
+	"github.com/jinzhu/copier"
 	"github.com/mrexmelle/connect-iam/authx/credential"
 	"github.com/mrexmelle/connect-iam/authx/profile"
 	"github.com/mrexmelle/connect-iam/authx/tenure"
@@ -11,8 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Register(req AccountPostRequest) error {
-	dsn := "host=127.0.0.1 user=iam password=123 dbname=iam port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+func Register(req AccountPostRequest, dsn string) error {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -85,8 +85,7 @@ func GenerateEhid(employeeId string) string {
 	return fmt.Sprintf("u%x", hasher.Sum(nil))
 }
 
-func UpdateEndDate(tenureId int, ehid string, req AccountPatchRequest) error {
-	dsn := "host=127.0.0.1 user=iam password=123 dbname=iam port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+func UpdateEndDate(tenureId int, ehid string, req AccountPatchRequest, dsn string) error {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -102,8 +101,7 @@ func UpdateEndDate(tenureId int, ehid string, req AccountPatchRequest) error {
 	return tenure.UpdateEndDate(data, db)
 }
 
-func RetrieveProfile(ehid string) (AccountGetProfileResponse, error) {
-	dsn := "host=127.0.0.1 user=iam password=123 dbname=iam port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+func RetrieveProfile(ehid string, dsn string) (AccountGetProfileResponse, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -125,8 +123,7 @@ func RetrieveProfile(ehid string) (AccountGetProfileResponse, error) {
 	return data, nil
 }
 
-func RetrieveTenures(ehid string) (AccountGetTenureResponse, error) {
-	dsn := "host=127.0.0.1 user=iam password=123 dbname=iam port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+func RetrieveTenures(ehid string, dsn string) (AccountGetTenureResponse, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -139,10 +136,8 @@ func RetrieveTenures(ehid string) (AccountGetTenureResponse, error) {
 		return AccountGetTenureResponse{}, err
 	}
 
-	data := AccountGetTenureResponse{
-		Ehid:    ehid,
-		Tenures: result.Tenures,
-	}
+	data := AccountGetTenureResponse{Ehid: ehid}
+	copier.Copy(&data.Tenures, &result.Tenures)
 
 	return data, nil
 }

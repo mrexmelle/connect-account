@@ -1,0 +1,10 @@
+app:
+  datasource:
+    host: 127.0.0.1
+    port: 5432
+    user: iam
+    password: 123
+    dbname: iam
+    sslmode: disable
+    timezone: Asia/Jakarta
+    

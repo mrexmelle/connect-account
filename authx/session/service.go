@@ -11,8 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Authenticate(req SessionPostRequest) (bool, error) {
-	dsn := "host=127.0.0.1 user=iam password=123 dbname=iam port=5432 sslmode=disable TimeZone=Asia/Jakarta"
+func Authenticate(req SessionPostRequest, dsn string) (bool, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {

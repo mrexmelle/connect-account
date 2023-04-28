@@ -1,7 +1,5 @@
 package account
 
-import "github.com/mrexmelle/connect-iam/authx/tenure"
-
 type AccountPostRequest struct {
 	EmployeeId     string `json:"employeeId"`
 	Name           string `json:"name"`
@@ -30,6 +28,14 @@ type AccountGetProfileResponse struct {
 }
 
 type AccountGetTenureResponse struct {
-	Ehid    string          `json:"ehid"`
-	Tenures []tenure.Tenure `json:"tenures"`
+	Ehid    string   `json:"ehid"`
+	Tenures []Tenure `json:"tenures"`
+}
+
+type Tenure struct {
+	Id             int    `json:"id"`
+	EmployeeId     string `json:"employeeId"`
+	StartDate      string `json:"startDate"`
+	EndDate        string `json:"endDate"`
+	EmploymentType string `json:"employmentType"`
 }

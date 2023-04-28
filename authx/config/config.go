@@ -7,7 +7,8 @@ import (
 )
 
 type Config struct {
-	Dsn string
+	Dsn       string
+	JwtSecret string
 }
 
 func New(
@@ -32,7 +33,10 @@ func New(
 	}
 	dsn = strings.TrimSpace(dsn)
 
+	jwtSecret := viper.GetString("app.security.jwt-secret")
+
 	return Config{
-		Dsn: dsn,
+		Dsn:       dsn,
+		JwtSecret: jwtSecret,
 	}, nil
 }

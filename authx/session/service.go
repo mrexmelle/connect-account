@@ -25,8 +25,8 @@ func Authenticate(req SessionPostRequest, dsn string) (bool, error) {
 	return credential.Authenticate(cred, db)
 }
 
-func GenerateJwt(employeeId string) (string, error) {
-	authenticator := jwtauth.New("HS256", []byte("1nt3rst3ll4r-*-a5tR0"), nil)
+func GenerateJwt(employeeId string, jwtSecret string) (string, error) {
+	authenticator := jwtauth.New("HS256", []byte(jwtSecret), nil)
 
 	now := time.Now()
 	_, token, err := authenticator.Encode(

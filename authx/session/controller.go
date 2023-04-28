@@ -24,7 +24,7 @@ func Post(config *config.Config) http.HandlerFunc {
 			return
 		}
 
-		signingResult, err := GenerateJwt(requestBody.EmployeeId)
+		signingResult, err := GenerateJwt(requestBody.EmployeeId, config.JwtSecret)
 
 		if err != nil {
 			http.Error(w, "Signing Failure", http.StatusInternalServerError)

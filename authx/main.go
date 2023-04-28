@@ -36,7 +36,7 @@ func main() {
 	})
 
 	r.Group(func(r chi.Router) {
-		secretToken := jwtauth.New("HS256", []byte("1nt3rst3ll4r-*-a5tR0"), nil)
+		secretToken := jwtauth.New("HS256", []byte(cfg.JwtSecret), nil)
 		r.Use(jwtauth.Verifier(secretToken))
 
 		r.Route("/accounts/me/profile", func(r chi.Router) {

@@ -9,10 +9,10 @@ import (
 
 type Controller struct {
 	Config         *config.Config
-	SessionService Service
+	SessionService *Service
 }
 
-func NewController(cfg *config.Config, svc Service) *Controller {
+func NewController(cfg *config.Config, svc *Service) *Controller {
 	return &Controller{
 		Config:         cfg,
 		SessionService: svc,

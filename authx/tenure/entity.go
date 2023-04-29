@@ -7,12 +7,6 @@ type TenureCreateRequest struct {
 	EmploymentType string
 }
 
-type TenureUpdateEndDateRequest struct {
-	Id      int
-	Ehid    string
-	EndDate string
-}
-
 type TenureRetrieveResponse struct {
 	Ehid    string
 	Tenures []Tenure

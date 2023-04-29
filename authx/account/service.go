@@ -12,11 +12,23 @@ import (
 )
 
 type Service struct {
-	Config *config.Config
+	Config               *config.Config
+	CredentialRepository *credential.Repository
+	ProfileRepository    *profile.Repository
+	TenureRepository     *tenure.Repository
 }
 
-func NewService(cfg *config.Config) Service {
-	return Service{Config: cfg}
+func NewService(
+	cfg *config.Config,
+	cr *credential.Repository,
+	pr *profile.Repository,
+	tr *tenure.Repository) *Service {
+	return &Service{
+		Config:               cfg,
+		CredentialRepository: cr,
+		ProfileRepository:    pr,
+		TenureRepository:     tr,
+	}
 }
 
 func (s *Service) Register(req AccountPostRequest) error {
@@ -33,17 +45,17 @@ func (s *Service) Register(req AccountPostRequest) error {
 		return trx.Error
 	}
 
-	err := credential.Create(cred, trx)
+	err := s.CredentialRepository.CreateWithDb(trx, cred)
 	if err != nil {
 		trx.Rollback()
 		return err
 	}
-	err = profile.Create(bp, trx)
+	err = s.ProfileRepository.CreateWithDb(trx, bp)
 	if err != nil {
 		trx.Rollback()
 		return err
 	}
-	err = tenure.Create(emp, trx)
+	err = s.TenureRepository.CreateWithDb(trx, emp)
 	if err != nil {
 		trx.Rollback()
 		return err
@@ -86,34 +98,38 @@ func GenerateEhid(employeeId string) string {
 	return fmt.Sprintf("u%x", hasher.Sum(nil))
 }
 
-func (s *Service) UpdateEndDate(ehid string, tenureId int, req AccountPatchRequest) error {
-	data := tenure.TenureUpdateEndDateRequest{
-		Id:      tenureId,
-		Ehid:    ehid,
-		EndDate: req.Value,
-	}
-
-	return tenure.UpdateEndDate(data, s.Config.Db)
+func (s *Service) UpdateEndDate(
+	ehid string,
+	tenureId int,
+	req AccountPatchRequest,
+) error {
+	return s.TenureRepository.UpdateEndDateByIdAndEhid(
+		req.Value,
+		tenureId,
+		ehid,
+	)
 }
 
-func (s *Service) RetrieveProfile(ehid string) (AccountGetProfileResponse, error) {
-	result, err := profile.Retrieve(ehid, s.Config.Db)
+func (s *Service) RetrieveProfile(
+	ehid string,
+) (AccountGetProfileResponse, error) {
+	result, err := s.ProfileRepository.FindByEhid(ehid)
 
 	if err != nil {
 		return AccountGetProfileResponse{}, err
 	}
 
-	data := AccountGetProfileResponse{
+	return AccountGetProfileResponse{
 		Ehid: ehid,
 		Name: result.Name,
 		Dob:  result.Dob,
-	}
-
-	return data, nil
+	}, nil
 }
 
-func (s *Service) RetrieveTenures(ehid string) (AccountGetTenureResponse, error) {
-	result, err := tenure.Retrieve(ehid, s.Config.Db)
+func (s *Service) RetrieveTenures(
+	ehid string,
+) (AccountGetTenureResponse, error) {
+	result, err := s.TenureRepository.FindByEhid(ehid)
 
 	if err != nil {
 		return AccountGetTenureResponse{}, err

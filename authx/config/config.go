@@ -29,26 +29,34 @@ func New(
 		return Config{}, err
 	}
 
-	var dsn = ""
-	for key, value := range viper.GetStringMapString("app.datasource") {
-		dsn += string(key + "=" + value + " ")
-	}
-	db, err := gorm.Open(
-		postgres.Open(strings.TrimSpace(dsn)),
-		&gorm.Config{},
-	)
+	db, err := CreateDb("app.datasource")
 	if err != nil {
 		return Config{}, err
 	}
 
-	jwta := jwtauth.New(
-		"HS256",
-		[]byte(viper.GetString("app.security.jwt-secret")),
-		nil,
-	)
+	jwta := CreateTokenAuth("app.security.jwt-secret")
 
 	return Config{
 		Db:        db,
 		TokenAuth: jwta,
 	}, nil
+}
+
+func CreateDb(configKey string) (*gorm.DB, error) {
+	var dsn = ""
+	for key, value := range viper.GetStringMapString(configKey) {
+		dsn += string(key + "=" + value + " ")
+	}
+	return gorm.Open(
+		postgres.Open(strings.TrimSpace(dsn)),
+		&gorm.Config{},
+	)
+}
+
+func CreateTokenAuth(configKey string) *jwtauth.JWTAuth {
+	return jwtauth.New(
+		"HS256",
+		[]byte(viper.GetString(configKey)),
+		nil,
+	)
 }

@@ -3,20 +3,34 @@ package profile
 import (
 	"time"
 
+	"github.com/mrexmelle/connect-iam/authx/config"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
-func Create(req ProfileCreateRequest, db *gorm.DB) error {
+type Repository struct {
+	Config    *config.Config
+	TableName string
+}
+
+func NewRepository(cfg *config.Config) *Repository {
+	return &Repository{
+		Config:    cfg,
+		TableName: "profiles",
+	}
+}
+
+func (r *Repository) CreateWithDb(db *gorm.DB, req ProfileCreateRequest) error {
 	ts, err := time.Parse("2006-01-02", req.Dob)
 	if err != nil {
 		return err
 	}
 
 	res := db.Exec(
-		"INSERT INTO profiles(ehid, name, dob, "+
+		"INSERT INTO ?(ehid, name, dob, "+
 			"created_at, updated_at) "+
 			"VALUES(?, ?, ?, NOW(), NOW())",
+		r.TableName,
 		req.Ehid,
 		req.Name,
 		datatypes.Date(ts),
@@ -25,12 +39,12 @@ func Create(req ProfileCreateRequest, db *gorm.DB) error {
 	return res.Error
 }
 
-func Retrieve(ehid string, db *gorm.DB) (ProfileRetrieveResponse, error) {
+func (r *Repository) FindByEhid(ehid string) (ProfileRetrieveResponse, error) {
 	var res ProfileRetrieveResponse
 	var dob time.Time
-	err := db.
+	err := r.Config.Db.
 		Select("name, dob").
-		Table("profiles").
+		Table(r.TableName).
 		Where("ehid = ?", ehid).
 		Row().
 		Scan(&res.Name, &dob)

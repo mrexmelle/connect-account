@@ -10,19 +10,22 @@ import (
 )
 
 type Service struct {
-	Config *config.Config
+	Config               *config.Config
+	CredentialRepository *credential.Repository
 }
 
-func NewService(cfg *config.Config) Service {
-	return Service{Config: cfg}
+func NewService(cfg *config.Config, repo *credential.Repository) *Service {
+	return &Service{
+		Config:               cfg,
+		CredentialRepository: repo,
+	}
 }
 
 func (s *Service) Authenticate(req SessionPostRequest) (bool, error) {
-	cred := credential.CredentialAuthRequest{
+	return s.CredentialRepository.ExistsByEmployeeIdAndPassword(
 		req.EmployeeId,
 		req.Password,
-	}
-	return credential.Authenticate(cred, s.Config.Db)
+	)
 }
 
 func (s *Service) GenerateJwt(employeeId string) (string, error) {

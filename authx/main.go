@@ -7,7 +7,10 @@ import (
 	"github.com/go-chi/jwtauth"
 	"github.com/mrexmelle/connect-iam/authx/account"
 	"github.com/mrexmelle/connect-iam/authx/config"
+	"github.com/mrexmelle/connect-iam/authx/credential"
+	"github.com/mrexmelle/connect-iam/authx/profile"
 	"github.com/mrexmelle/connect-iam/authx/session"
+	"github.com/mrexmelle/connect-iam/authx/tenure"
 	"go.uber.org/dig"
 )
 
@@ -28,6 +31,9 @@ func Config() *config.Config {
 func main() {
 	container := dig.New()
 	container.Provide(Config)
+	container.Provide(credential.NewRepository)
+	container.Provide(profile.NewRepository)
+	container.Provide(tenure.NewRepository)
 	container.Provide(account.NewService)
 	container.Provide(session.NewService)
 	container.Provide(account.NewController)

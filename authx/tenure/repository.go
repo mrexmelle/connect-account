@@ -5,20 +5,34 @@ import (
 	"errors"
 	"time"
 
+	"github.com/mrexmelle/connect-iam/authx/config"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
-func Create(req TenureCreateRequest, db *gorm.DB) error {
+type Repository struct {
+	Config    *config.Config
+	TableName string
+}
+
+func NewRepository(cfg *config.Config) *Repository {
+	return &Repository{
+		Config:    cfg,
+		TableName: "tenures",
+	}
+}
+
+func (r *Repository) CreateWithDb(db *gorm.DB, req TenureCreateRequest) error {
 	ts, err := time.Parse("2006-01-02", req.StartDate)
 	if err != nil {
 		return err
 	}
 
 	res := db.Exec(
-		"INSERT INTO tenures(ehid, employee_id, start_date, employment_type, "+
+		"INSERT INTO ?(ehid, employee_id, start_date, employment_type, "+
 			"created_at, updated_at) "+
 			"VALUES(?, ?, ?, ?, NOW(), NOW())",
+		r.TableName,
 		req.Ehid,
 		req.EmployeeId,
 		datatypes.Date(ts),
@@ -28,14 +42,18 @@ func Create(req TenureCreateRequest, db *gorm.DB) error {
 	return res.Error
 }
 
-func UpdateEndDate(req TenureUpdateEndDateRequest, db *gorm.DB) error {
-	ts, err := time.Parse("2006-01-02", req.EndDate)
+func (r *Repository) UpdateEndDateByIdAndEhid(
+	endDate string,
+	id int,
+	ehid string,
+) error {
+	ts, err := time.Parse("2006-01-02", endDate)
 	if err != nil {
 		return nil
 	}
-	result := db.
-		Table("tenures").
-		Where("id = ? AND ehid = ?", req.Id, req.Ehid).
+	result := r.Config.Db.
+		Table(r.TableName).
+		Where("id = ? AND ehid = ?", id, ehid).
 		Updates(
 			map[string]interface{}{
 				"end_date":   datatypes.Date(ts),
@@ -54,10 +72,10 @@ func UpdateEndDate(req TenureUpdateEndDateRequest, db *gorm.DB) error {
 	return nil
 }
 
-func Retrieve(ehid string, db *gorm.DB) (TenureRetrieveResponse, error) {
-	result := db.
+func (r *Repository) FindByEhid(ehid string) (TenureRetrieveResponse, error) {
+	result := r.Config.Db.
 		Select("id, employee_id, start_date, end_date, employment_type").
-		Table("tenures").
+		Table(r.TableName).
 		Where("ehid = ?", ehid)
 	var response = TenureRetrieveResponse{
 		Ehid:    ehid,

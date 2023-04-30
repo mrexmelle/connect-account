@@ -8,5 +8,7 @@ app:
     sslmode: disable
     timezone: Asia/Jakarta
   security:
-    jwt-secret: 1nt3rst3ll4r-*-a5tR0
+    jwt:
+      secret: 1nt3rst3ll4r-*-a5tR0
+      valid-minute: 90
     

@@ -1,12 +1,10 @@
 package account
 
 import (
-	"crypto/sha256"
-	"fmt"
-
 	"github.com/jinzhu/copier"
 	"github.com/mrexmelle/connect-iam/authx/config"
 	"github.com/mrexmelle/connect-iam/authx/credential"
+	"github.com/mrexmelle/connect-iam/authx/ehid"
 	"github.com/mrexmelle/connect-iam/authx/profile"
 	"github.com/mrexmelle/connect-iam/authx/tenure"
 )
@@ -69,7 +67,7 @@ func Disperse(req AccountPostRequest) (
 	profile.ProfileCreateRequest,
 	tenure.TenureCreateRequest,
 ) {
-	ehid := GenerateEhid(req.EmployeeId)
+	ehid := ehid.FromEmployeeId(req.EmployeeId)
 
 	cred := credential.CredentialCreateRequest{
 		req.EmployeeId,
@@ -89,13 +87,6 @@ func Disperse(req AccountPostRequest) (
 	}
 
 	return cred, bp, emp
-}
-
-func GenerateEhid(employeeId string) string {
-	hasher := sha256.New()
-	hasher.Write([]byte(employeeId))
-
-	return fmt.Sprintf("u%x", hasher.Sum(nil))
 }
 
 func (s *Service) UpdateEndDate(

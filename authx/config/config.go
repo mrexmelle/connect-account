@@ -10,8 +10,9 @@ import (
 )
 
 type Config struct {
-	Db        *gorm.DB
-	TokenAuth *jwtauth.JWTAuth
+	Db             *gorm.DB
+	TokenAuth      *jwtauth.JWTAuth
+	JwtValidMinute int
 }
 
 func New(
@@ -34,11 +35,14 @@ func New(
 		return Config{}, err
 	}
 
-	jwta := CreateTokenAuth("app.security.jwt-secret")
+	jwta := CreateTokenAuth("app.security.jwt.secret")
+
+	jwtvm := viper.GetInt("app.security.jwt.valid-minute")
 
 	return Config{
-		Db:        db,
-		TokenAuth: jwta,
+		Db:             db,
+		TokenAuth:      jwta,
+		JwtValidMinute: jwtvm,
 	}, nil
 }
 

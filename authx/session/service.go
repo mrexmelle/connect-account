@@ -1,12 +1,11 @@
 package session
 
 import (
-	"crypto/sha256"
-	"fmt"
 	"time"
 
 	"github.com/mrexmelle/connect-iam/authx/config"
 	"github.com/mrexmelle/connect-iam/authx/credential"
+	"github.com/mrexmelle/connect-iam/authx/ehid"
 )
 
 type Service struct {
@@ -33,11 +32,13 @@ func (s *Service) GenerateJwt(employeeId string) (string, error) {
 	_, token, err := s.Config.TokenAuth.Encode(
 		map[string]interface{}{
 			"aud": "connect-iam",
-			"exp": now.Add(time.Hour * 3).Unix(),
+			"exp": now.
+				Add(time.Minute * time.Duration(s.Config.JwtValidMinute)).
+				Unix(),
 			"iat": now.Unix(),
 			"iss": "connect-iam",
 			"nbf": now.Unix(),
-			"sub": s.GenerateEhid(employeeId),
+			"sub": ehid.FromEmployeeId(employeeId),
 		},
 	)
 
@@ -46,11 +47,4 @@ func (s *Service) GenerateJwt(employeeId string) (string, error) {
 	}
 
 	return token, nil
-}
-
-func (s *Service) GenerateEhid(employeeId string) string {
-	hasher := sha256.New()
-	hasher.Write([]byte(employeeId))
-
-	return fmt.Sprintf("u%x", hasher.Sum(nil))
 }

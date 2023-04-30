@@ -13,6 +13,7 @@ type Config struct {
 	Db             *gorm.DB
 	TokenAuth      *jwtauth.JWTAuth
 	JwtValidMinute int
+	Port           int
 }
 
 func New(
@@ -39,10 +40,13 @@ func New(
 
 	jwtvm := viper.GetInt("app.security.jwt.valid-minute")
 
+	port := viper.GetInt("app.server.port")
+
 	return Config{
 		Db:             db,
 		TokenAuth:      jwta,
 		JwtValidMinute: jwtvm,
+		Port:           port,
 	}, nil
 }
 

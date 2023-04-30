@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -64,7 +65,7 @@ func main() {
 			})
 		})
 
-		err := http.ListenAndServe(":8080", r)
+		err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), r)
 
 		if err != nil {
 			panic(err)

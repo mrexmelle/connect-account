@@ -26,19 +26,19 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 	queryResult, err := c.SessionService.Authenticate(requestBody)
 
 	if err != nil {
-		http.Error(w, "Authentication Failure", http.StatusInternalServerError)
+		http.Error(w, "Authentication Failure: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if queryResult == false {
-		http.Error(w, "Authentication Failure", http.StatusUnauthorized)
+		http.Error(w, "Authentication Failure: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	signingResult, err := c.SessionService.GenerateJwt(requestBody.EmployeeId)
 
 	if err != nil {
-		http.Error(w, "Signing Failure", http.StatusInternalServerError)
+		http.Error(w, "Signing Failure: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 

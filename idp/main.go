@@ -58,12 +58,9 @@ func main() {
 		r.Group(func(r chi.Router) {
 			r.Use(jwtauth.Verifier(config.TokenAuth))
 
-			r.Route("/accounts/me/profile", func(r chi.Router) {
-				r.Get("/", accountController.GetMyProfile)
-			})
-
-			r.Route("/accounts/me/tenures", func(r chi.Router) {
-				r.Get("/", accountController.GetMyTenures)
+			r.Route("/accounts/me", func(r chi.Router) {
+				r.Get("/profile", accountController.GetMyProfile)
+				r.Get("/tenures", accountController.GetMyTenures)
 			})
 		})
 

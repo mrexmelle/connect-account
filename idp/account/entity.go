@@ -17,6 +17,11 @@ type AccountPatchRequest struct {
 	Value string `json:"value"`
 }
 
+type AccountPasswordPatchRequest struct {
+	CurrentValue string `json:"currentValue"`
+	NewValue     string `json:"newValue"`
+}
+
 type AccountPatchResponse struct {
 	Status string `json:"status"`
 }

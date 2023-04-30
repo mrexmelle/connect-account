@@ -68,3 +68,20 @@ func (r *Repository) DeleteByEmployeeId(employeeId string) error {
 	}
 	return nil
 }
+
+func (r *Repository) UpdatePasswordByEmployeeIdAndPassword(
+	newPassword string,
+	employeeId string,
+	currentPassword int,
+) error {
+	res := r.Config.Db.Exec(
+		"UPDATE TABLE "+r.TableName+" SET "+
+			"password_hash = CRYPT(?, GEN_SALT('bf', 8)), "+
+			"updated_at = NOW() "+
+			"WHERE employee_id = ? AND password_hash = CRYPT(?, password_hash)",
+		newPassword,
+		employeeId,
+		currentPassword,
+	)
+	return res.Error
+}

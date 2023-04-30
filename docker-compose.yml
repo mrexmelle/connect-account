@@ -1,13 +1,11 @@
 version: '3.8'
 services:
   db:
-    container_name: connect-account-db
+    container_name: connect-iam-db
     image: postgres:15-alpine
     restart: always
     environment:
-      - POSTGRES_USER=iam
       - POSTGRES_PASSWORD=123
-      - POSTGRES_DB=iam
     ports:
       - '5432:5432'
     volumes:

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/mrexmelle/connect-iam/authx/config"
+	"github.com/mrexmelle/connect-iam/idp/config"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -29,10 +29,9 @@ func (r *Repository) CreateWithDb(db *gorm.DB, req TenureCreateRequest) error {
 	}
 
 	res := db.Exec(
-		"INSERT INTO ?(ehid, employee_id, start_date, employment_type, "+
+		"INSERT INTO "+r.TableName+"(ehid, employee_id, start_date, employment_type, "+
 			"created_at, updated_at) "+
 			"VALUES(?, ?, ?, ?, NOW(), NOW())",
-		r.TableName,
 		req.Ehid,
 		req.EmployeeId,
 		datatypes.Date(ts),

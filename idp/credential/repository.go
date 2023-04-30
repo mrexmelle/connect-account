@@ -3,7 +3,7 @@ package credential
 import (
 	"time"
 
-	"github.com/mrexmelle/connect-iam/authx/config"
+	"github.com/mrexmelle/connect-iam/idp/config"
 	"gorm.io/gorm"
 )
 
@@ -24,10 +24,9 @@ func (r *Repository) CreateWithDb(
 	req CredentialCreateRequest,
 ) error {
 	res := db.Exec(
-		"INSERT INTO ?(employee_id, password_hash, "+
+		"INSERT INTO "+r.TableName+"(employee_id, password_hash, "+
 			"created_at, updated_at) "+
 			"VALUES(?, CRYPT(?, GEN_SALT('bf', 8)), NOW(), NOW())",
-		r.TableName,
 		req.EmployeeId,
 		req.Password,
 	)

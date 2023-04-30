@@ -2,11 +2,11 @@ package account
 
 import (
 	"github.com/jinzhu/copier"
-	"github.com/mrexmelle/connect-iam/authx/config"
-	"github.com/mrexmelle/connect-iam/authx/credential"
-	"github.com/mrexmelle/connect-iam/authx/ehid"
-	"github.com/mrexmelle/connect-iam/authx/profile"
-	"github.com/mrexmelle/connect-iam/authx/tenure"
+	"github.com/mrexmelle/connect-iam/idp/config"
+	"github.com/mrexmelle/connect-iam/idp/credential"
+	"github.com/mrexmelle/connect-iam/idp/ehid"
+	"github.com/mrexmelle/connect-iam/idp/profile"
+	"github.com/mrexmelle/connect-iam/idp/tenure"
 )
 
 type Service struct {

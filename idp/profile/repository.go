@@ -3,7 +3,7 @@ package profile
 import (
 	"time"
 
-	"github.com/mrexmelle/connect-iam/authx/config"
+	"github.com/mrexmelle/connect-iam/idp/config"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -27,10 +27,9 @@ func (r *Repository) CreateWithDb(db *gorm.DB, req ProfileCreateRequest) error {
 	}
 
 	res := db.Exec(
-		"INSERT INTO ?(ehid, name, dob, "+
+		"INSERT INTO "+r.TableName+"(ehid, name, dob, "+
 			"created_at, updated_at) "+
 			"VALUES(?, ?, ?, NOW(), NOW())",
-		r.TableName,
 		req.Ehid,
 		req.Name,
 		datatypes.Date(ts),

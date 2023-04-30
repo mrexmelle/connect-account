@@ -2,9 +2,9 @@ app:
   datasource:
     host: 127.0.0.1
     port: 5432
-    user: iam
-    password: 123
-    dbname: iam
+    user: idp
+    password: idp123
+    dbname: idp
     sslmode: disable
     timezone: Asia/Jakarta
   security:

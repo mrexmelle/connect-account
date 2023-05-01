@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/mrexmelle/connect-iam/internal/config"
+	"github.com/mrexmelle/connect-idp/internal/config"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )

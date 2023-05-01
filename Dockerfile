@@ -10,4 +10,4 @@ RUN go build -o ./connect-idp ./cmd/main.go
 
 ENV APP_PROFILE docked
 EXPOSE 8080
-CMD ["/app/connect-idp"]
+CMD ["/app/connect-idp serve"]

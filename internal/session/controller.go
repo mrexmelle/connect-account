@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/mrexmelle/connect-iam/internal/config"
+	"github.com/mrexmelle/connect-idp/internal/config"
 )
 
 type Controller struct {

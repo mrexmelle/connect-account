@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
-	"github.com/mrexmelle/connect-iam/internal/config"
+	"github.com/mrexmelle/connect-idp/internal/config"
 )
 
 type Controller struct {

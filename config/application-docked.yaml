@@ -1,0 +1,16 @@
+app:
+  datasource:
+    host: db
+    port: 5432
+    user: idp
+    password: idp123
+    dbname: idp
+    sslmode: disable
+    timezone: Asia/Jakarta
+  security:
+    jwt:
+      secret: 1nt3rst3ll4r-*-a5tR0
+      valid-minute: 90
+  server:
+    port: 8080
+    

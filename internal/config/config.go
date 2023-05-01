@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/go-chi/jwtauth"
@@ -10,6 +12,7 @@ import (
 )
 
 type Config struct {
+	Profile        string
 	Db             *gorm.DB
 	TokenAuth      *jwtauth.JWTAuth
 	JwtValidMinute int
@@ -17,11 +20,11 @@ type Config struct {
 }
 
 func New(
-	configName string,
+	plainConfigName string,
 	configType string,
 	configPaths []string,
 ) (Config, error) {
-	viper.SetConfigName(configName)
+	viper.SetConfigName(ComposeConfigName(plainConfigName))
 	viper.SetConfigType(configType)
 	for _, cp := range configPaths {
 		viper.AddConfigPath(cp)
@@ -37,9 +40,7 @@ func New(
 	}
 
 	jwta := CreateTokenAuth("app.security.jwt.secret")
-
 	jwtvm := viper.GetInt("app.security.jwt.valid-minute")
-
 	port := viper.GetInt("app.server.port")
 
 	return Config{
@@ -48,6 +49,14 @@ func New(
 		JwtValidMinute: jwtvm,
 		Port:           port,
 	}, nil
+}
+
+func ComposeConfigName(plainConfigName string) string {
+	profile := os.Getenv("APP_PROFILE")
+	if profile == "" {
+		profile = "local"
+	}
+	return fmt.Sprintf("%s-%s", plainConfigName, profile)
 }
 
 func CreateDb(configKey string) (*gorm.DB, error) {

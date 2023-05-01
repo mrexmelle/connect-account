@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   db:
-    container_name: connect-iam-db
+    container_name: connect-idp-db
     image: postgres:15-alpine
     restart: always
     environment:
@@ -11,3 +11,10 @@ services:
     volumes:
       - ./data:/var/lib/postgresql/data
       - ./init-db:/docker-entrypoint-initdb.d
+  core:
+    container_name: connect-idp-core
+    image: github.com/mrexmelle/connect-idp:0.1.0
+    ports:
+      - '8080:8080'
+    depends_on:
+      - db

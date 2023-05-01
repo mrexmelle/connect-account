@@ -3,9 +3,9 @@ package session
 import (
 	"time"
 
-	"github.com/mrexmelle/connect-iam/idp/config"
-	"github.com/mrexmelle/connect-iam/idp/credential"
-	"github.com/mrexmelle/connect-iam/idp/ehid"
+	"github.com/mrexmelle/connect-iam/internal/config"
+	"github.com/mrexmelle/connect-iam/internal/credential"
+	"github.com/mrexmelle/connect-iam/internal/ehid"
 )
 
 type Service struct {

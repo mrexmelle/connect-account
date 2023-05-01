@@ -6,18 +6,18 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
-	"github.com/mrexmelle/connect-iam/idp/account"
-	"github.com/mrexmelle/connect-iam/idp/config"
-	"github.com/mrexmelle/connect-iam/idp/credential"
-	"github.com/mrexmelle/connect-iam/idp/profile"
-	"github.com/mrexmelle/connect-iam/idp/session"
-	"github.com/mrexmelle/connect-iam/idp/tenure"
+	"github.com/mrexmelle/connect-iam/internal/account"
+	"github.com/mrexmelle/connect-iam/internal/config"
+	"github.com/mrexmelle/connect-iam/internal/credential"
+	"github.com/mrexmelle/connect-iam/internal/profile"
+	"github.com/mrexmelle/connect-iam/internal/session"
+	"github.com/mrexmelle/connect-iam/internal/tenure"
 	"go.uber.org/dig"
 )
 
 func Config() *config.Config {
 	cfg, err := config.New(
-		"idp", "yaml",
+		"application", "yaml",
 		[]string{
 			"/etc/conf",
 			"./config",

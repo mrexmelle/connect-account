@@ -8,6 +8,5 @@ COPY internal ./internal
 COPY config ./config
 RUN go build -o ./connect-idp ./cmd/main.go
 
-ENV APP_PROFILE docked
 EXPOSE 8080
-CMD ["/app/connect-idp serve"]
+CMD ["/app/connect-idp", "serve"]

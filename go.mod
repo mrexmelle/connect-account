@@ -6,6 +6,7 @@ require (
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/jwtauth v1.2.0
 	github.com/jinzhu/copier v0.3.5
+	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	go.uber.org/dig v1.16.1
 	gorm.io/datatypes v1.2.0
@@ -35,7 +36,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
-	github.com/spf13/cobra v1.7.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect

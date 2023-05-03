@@ -27,14 +27,15 @@ func (s *Service) Authenticate(req SessionPostRequest) (bool, error) {
 	)
 }
 
-func (s *Service) GenerateJwt(employeeId string) (string, error) {
+func (s *Service) GenerateJwt(employeeId string) (string, time.Time, error) {
 	now := time.Now()
+	exp := now.Add(
+		time.Minute * time.Duration(s.Config.JwtValidMinute),
+	)
 	_, token, err := s.Config.TokenAuth.Encode(
 		map[string]interface{}{
 			"aud": "connect-iam",
-			"exp": now.
-				Add(time.Minute * time.Duration(s.Config.JwtValidMinute)).
-				Unix(),
+			"exp": exp.Unix(),
 			"iat": now.Unix(),
 			"iss": "connect-iam",
 			"nbf": now.Unix(),
@@ -43,8 +44,8 @@ func (s *Service) GenerateJwt(employeeId string) (string, error) {
 	)
 
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 
-	return token, nil
+	return token, exp, nil
 }

@@ -35,7 +35,7 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	signingResult, err := c.SessionService.GenerateJwt(requestBody.EmployeeId)
+	signingResult, exp, err := c.SessionService.GenerateJwt(requestBody.EmployeeId)
 
 	if err != nil {
 		http.Error(w, "Signing Failure: "+err.Error(), http.StatusInternalServerError)
@@ -44,6 +44,14 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 
 	responseBody, _ := json.Marshal(
 		&SessionPostResponse{Token: signingResult},
+	)
+
+	http.SetCookie(
+		w, &http.Cookie{
+			Name:    "jwt",
+			Value:   signingResult,
+			Expires: exp,
+		},
 	)
 
 	w.Write([]byte(responseBody))

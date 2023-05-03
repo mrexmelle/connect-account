@@ -8,5 +8,5 @@ var RootCmd = &cobra.Command{
 	Use:     "connect-idp",
 	Short:   "Connect IdP",
 	Long:    "Connect IdP - An identity provider for Connect",
-	Version: "0.1.0",
+	Version: "0.1.1",
 }

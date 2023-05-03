@@ -17,7 +17,7 @@ import (
 	"go.uber.org/dig"
 )
 
-func Config() *config.Config {
+func NewConfig() *config.Config {
 	cfg, err := config.New(
 		"application", "yaml",
 		[]string{
@@ -33,7 +33,7 @@ func Config() *config.Config {
 
 func Serve(cmd *cobra.Command, args []string) {
 	container := dig.New()
-	container.Provide(Config)
+	container.Provide(NewConfig)
 	container.Provide(credential.NewRepository)
 	container.Provide(profile.NewRepository)
 	container.Provide(tenure.NewRepository)

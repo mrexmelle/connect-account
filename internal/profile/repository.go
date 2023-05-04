@@ -27,32 +27,32 @@ func (r *Repository) CreateWithDb(db *gorm.DB, req ProfileCreateRequest) error {
 	}
 
 	res := db.Exec(
-		"INSERT INTO "+r.TableName+"(ehid, name, dob, "+
+		"INSERT INTO "+r.TableName+"(ehid, employee_id, name, dob, "+
 			"created_at, updated_at) "+
-			"VALUES(?, ?, ?, NOW(), NOW())",
+			"VALUES(?, ?, ?, ?, NOW(), NOW())",
 		req.Ehid,
+		req.EmployeeId,
 		req.Name,
 		datatypes.Date(ts),
 	)
-
 	return res.Error
 }
 
 func (r *Repository) FindByEhid(ehid string) (ProfileRetrieveResponse, error) {
-	var res ProfileRetrieveResponse
+	response := ProfileRetrieveResponse{
+		Ehid: ehid,
+	}
 	var dob time.Time
 	err := r.Config.Db.
-		Select("name, dob").
+		Select("name, employee_id, dob").
 		Table(r.TableName).
 		Where("ehid = ?", ehid).
 		Row().
-		Scan(&res.Name, &dob)
-	res.Dob = dob.Format("2006-01-02")
-
+		Scan(&response.Name, &response.EmployeeId, &dob)
 	if err != nil {
 		return ProfileRetrieveResponse{}, err
 	}
 
-	res.Ehid = ehid
-	return res, nil
+	response.Dob = dob.Format("2006-01-02")
+	return response, nil
 }

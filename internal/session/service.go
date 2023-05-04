@@ -38,7 +38,6 @@ func (s *Service) GenerateJwt(employeeId string) (string, time.Time, error) {
 			"exp": exp.Unix(),
 			"iat": now.Unix(),
 			"iss": "connect-iam",
-			"nbf": now.Unix(),
 			"sub": ehid.FromEmployeeId(employeeId),
 		},
 	)

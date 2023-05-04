@@ -22,8 +22,8 @@ $ docker push ghcr.io/mrexmelle/connect-idp:${VERSION}
 ```
 $ docker pull postgres:15-alpine
 $ docker run \
-	-v data:/var/lib/postgresql/data \
-	-v init-db:/docker-entrypoint-initdb.d \
+	-v $PWD/data:/var/lib/postgresql/data \
+	-v $PWD/init-db:/docker-entrypoint-initdb.d \
 	-p 5432:5432 \
 	-e POSTGRES_PASSWORD=123 \
 	--restart always \

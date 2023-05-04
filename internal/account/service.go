@@ -30,7 +30,7 @@ func NewService(
 }
 
 func (s *Service) Register(req AccountPostRequest) error {
-	cred, bp, emp := Disperse(req)
+	cred, bp := Disperse(req)
 
 	trx := s.Config.Db.Begin()
 	defer func() {
@@ -53,11 +53,6 @@ func (s *Service) Register(req AccountPostRequest) error {
 		trx.Rollback()
 		return err
 	}
-	err = s.TenureRepository.CreateWithDb(trx, emp)
-	if err != nil {
-		trx.Rollback()
-		return err
-	}
 
 	return trx.Commit().Error
 }
@@ -65,28 +60,22 @@ func (s *Service) Register(req AccountPostRequest) error {
 func Disperse(req AccountPostRequest) (
 	credential.CredentialCreateRequest,
 	profile.ProfileCreateRequest,
-	tenure.TenureCreateRequest,
 ) {
 	ehid := ehid.FromEmployeeId(req.EmployeeId)
 
 	cred := credential.CredentialCreateRequest{
-		req.EmployeeId,
-		req.Password,
+		EmployeeId: req.EmployeeId,
+		Password:   req.Password,
 	}
 
 	bp := profile.ProfileCreateRequest{
-		ehid,
-		req.Name,
-		req.Dob,
-	}
-	emp := tenure.TenureCreateRequest{
-		ehid,
-		req.EmployeeId,
-		req.StartDate,
-		req.EmploymentType,
+		Ehid:       ehid,
+		EmployeeId: req.EmployeeId,
+		Name:       req.Name,
+		Dob:        req.Dob,
 	}
 
-	return cred, bp, emp
+	return cred, bp
 }
 
 func (s *Service) UpdateEndDate(
@@ -111,9 +100,10 @@ func (s *Service) RetrieveProfile(
 	}
 
 	return AccountGetProfileResponse{
-		Ehid: ehid,
-		Name: result.Name,
-		Dob:  result.Dob,
+		Ehid:       ehid,
+		EmployeeId: result.EmployeeId,
+		Name:       result.Name,
+		Dob:        result.Dob,
 	}, nil
 }
 
@@ -130,4 +120,17 @@ func (s *Service) RetrieveTenures(
 	copier.Copy(&data.Tenures, &result.Tenures)
 
 	return data, nil
+}
+
+func (s *Service) PostTenure(
+	ehid string,
+	request AccountPostTenureRequest,
+) error {
+	data := tenure.TenureCreateRequest{
+		Ehid:           ehid,
+		StartDate:      request.StartDate,
+		EndDate:        request.EndDate,
+		EmploymentType: request.EmploymentType,
+	}
+	return s.TenureRepository.Create(data)
 }

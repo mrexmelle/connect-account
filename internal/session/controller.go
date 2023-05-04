@@ -26,33 +26,33 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 	queryResult, err := c.SessionService.Authenticate(requestBody)
 
 	if err != nil {
-		http.Error(w, "Authentication Failure: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "POST failure: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if queryResult == false {
-		http.Error(w, "Authentication Failure: "+err.Error(), http.StatusUnauthorized)
+		http.Error(w, "POST failure: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	signingResult, exp, err := c.SessionService.GenerateJwt(requestBody.EmployeeId)
-
 	if err != nil {
-		http.Error(w, "Signing Failure: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "POST failure: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	http.SetCookie(
+		w, &http.Cookie{
+			Name:     "jwt",
+			Value:    signingResult,
+			Expires:  exp,
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteNoneMode,
+		},
+	)
 	responseBody, _ := json.Marshal(
 		&SessionPostResponse{Token: signingResult},
 	)
-
-	http.SetCookie(
-		w, &http.Cookie{
-			Name:    "jwt",
-			Value:   signingResult,
-			Expires: exp,
-		},
-	)
-
 	w.Write([]byte(responseBody))
 }

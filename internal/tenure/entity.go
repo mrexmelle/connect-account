@@ -2,8 +2,8 @@ package tenure
 
 type TenureCreateRequest struct {
 	Ehid           string
-	EmployeeId     string
 	StartDate      string
+	EndDate        string
 	EmploymentType string
 }
 
@@ -14,7 +14,6 @@ type TenureRetrieveResponse struct {
 
 type Tenure struct {
 	Id             int
-	EmployeeId     string
 	StartDate      string
 	EndDate        string
 	EmploymentType string

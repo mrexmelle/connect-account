@@ -23,20 +23,67 @@ func NewRepository(cfg *config.Config) *Repository {
 }
 
 func (r *Repository) CreateWithDb(db *gorm.DB, req TenureCreateRequest) error {
-	ts, err := time.Parse("2006-01-02", req.StartDate)
+	sd, err := time.Parse("2006-01-02", req.StartDate)
 	if err != nil {
 		return err
 	}
 
-	res := db.Exec(
-		"INSERT INTO "+r.TableName+"(ehid, employee_id, start_date, employment_type, "+
-			"created_at, updated_at) "+
-			"VALUES(?, ?, ?, ?, NOW(), NOW())",
-		req.Ehid,
-		req.EmployeeId,
-		datatypes.Date(ts),
-		req.EmploymentType,
-	)
+	ed, edErr := time.Parse("2006-01-02", req.EndDate)
+
+	var res *gorm.DB
+	if edErr == nil {
+		res = db.Exec(
+			"INSERT INTO "+r.TableName+"(ehid, start_date, end_date, employment_type, "+
+				"created_at, updated_at) "+
+				"VALUES(?, ?, ?, ?, NOW(), NOW())",
+			req.Ehid,
+			datatypes.Date(sd),
+			datatypes.Date(ed),
+			req.EmploymentType,
+		)
+	} else {
+		res = db.Exec(
+			"INSERT INTO "+r.TableName+"(ehid, start_date, employment_type, "+
+				"created_at, updated_at) "+
+				"VALUES(?, ?, ?, NOW(), NOW())",
+			req.Ehid,
+			datatypes.Date(sd),
+			req.EmploymentType,
+		)
+	}
+
+	return res.Error
+}
+
+func (r *Repository) Create(req TenureCreateRequest) error {
+	sd, err := time.Parse("2006-01-02", req.StartDate)
+	if err != nil {
+		return err
+	}
+
+	ed, edErr := time.Parse("2006-01-02", req.EndDate)
+
+	var res *gorm.DB
+	if edErr == nil {
+		res = r.Config.Db.Exec(
+			"INSERT INTO "+r.TableName+"(ehid, start_date, end_date, employment_type, "+
+				"created_at, updated_at) "+
+				"VALUES(?, ?, ?, ?, NOW(), NOW())",
+			req.Ehid,
+			datatypes.Date(sd),
+			datatypes.Date(ed),
+			req.EmploymentType,
+		)
+	} else {
+		res = r.Config.Db.Exec(
+			"INSERT INTO "+r.TableName+"(ehid, start_date, employment_type, "+
+				"created_at, updated_at) "+
+				"VALUES(?, ?, ?, NOW(), NOW())",
+			req.Ehid,
+			datatypes.Date(sd),
+			req.EmploymentType,
+		)
+	}
 
 	return res.Error
 }
@@ -73,7 +120,7 @@ func (r *Repository) UpdateEndDateByIdAndEhid(
 
 func (r *Repository) FindByEhid(ehid string) (TenureRetrieveResponse, error) {
 	result := r.Config.Db.
-		Select("id, employee_id, start_date, end_date, employment_type").
+		Select("id, start_date, end_date, employment_type").
 		Table(r.TableName).
 		Where("ehid = ?", ehid)
 	var response = TenureRetrieveResponse{
@@ -93,7 +140,6 @@ func (r *Repository) FindByEhid(ehid string) (TenureRetrieveResponse, error) {
 		var endDate sql.NullTime
 		rows.Scan(
 			&t.Id,
-			&t.EmployeeId,
 			&startDate,
 			&endDate,
 			&t.EmploymentType,

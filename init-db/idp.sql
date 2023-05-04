@@ -27,24 +27,46 @@ CREATE TABLE IF NOT EXISTS profiles(
 );
 GRANT SELECT, UPDATE, INSERT, DELETE ON profiles TO idp;
 
+CREATE TABLE IF NOT EXISTS organizations(
+	id TEXT NOT NULL,
+	ohid TEXT NOT NULL,
+	parent_id TEXT,
+	name TEXT NOT NULL,
+	lead_ehid TEXT,
+	created_at TIMESTAMPTZ NOT NULL,
+	updated_at TIMESTAMPTZ NOT NULL,
+	deleted_at TIMESTAMPTZ DEFAULT NULL,
+	CONSTRAINT pk_organizations PRIMARY KEY(id),
+	CONSTRAINT fk_organizations FOREIGN KEY(lead_ehid) REFERENCES profiles(ehid),
+	CONSTRAINT uk_organizations UNIQUE(ohid)
+);
+GRANT SELECT, UPDATE, INSERT, DELETE ON organizations TO idp;
+
 CREATE TABLE IF NOT EXISTS tenures(
 	id SERIAL,
 	ehid TEXT NOT NULL,
 	start_date DATE NOT NULL,
 	end_date DATE DEFAULT NULL,
 	employment_type TEXT,
+	ohid TEXT,
 	created_at TIMESTAMPTZ NOT NULL,
 	updated_at TIMESTAMPTZ NOT NULL,
 	CONSTRAINT pk_tenures PRIMARY KEY(id),
-	CONSTRAINT fk_tenures FOREIGN KEY(ehid) REFERENCES profiles(ehid),
+	CONSTRAINT fk1_tenures FOREIGN KEY(ehid) REFERENCES profiles(ehid),
+	CONSTRAINT fk2_tenures FOREIGN KEY(ohid) REFERENCES organizations(ohid),
 	CONSTRAINT uk_tenures UNIQUE(ehid, start_date)
 );
 GRANT SELECT, UPDATE, INSERT, DELETE ON tenures TO idp;
 GRANT USAGE ON SEQUENCE tenures_id_seq TO idp;
 
-CREATE TABLE IF NOT EXISTS ktps(
-	id TEXT NOT NULL,
-	ehid TEXT NOT NULL,
-	CONSTRAINT pk_ktps PRIMARY KEY(id)
+CREATE TABLE IF NOT EXISTS titles(
+	id SERIAL,
+	grade TEXT NOT NULL,
+	type TEXT NOT NULL,
+	name TEXT NOT NULL,
+	created_at TIMESTAMPTZ NOT NULL,
+	updated_at TIMESTAMPTZ NOT NULL,
+	CONSTRAINT pk_grades PRIMARY KEY(id)
 );
-GRANT SELECT, UPDATE, INSERT, DELETE ON ktps TO idp;
+GRANT SELECT, UPDATE, INSERT, DELETE ON titles TO idp;
+GRANT USAGE ON SEQUENCE titles_id_seq TO idp;

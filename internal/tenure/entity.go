@@ -5,6 +5,7 @@ type TenureCreateRequest struct {
 	StartDate      string
 	EndDate        string
 	EmploymentType string
+	Ohid           string
 }
 
 type TenureRetrieveResponse struct {
@@ -17,4 +18,5 @@ type Tenure struct {
 	StartDate      string
 	EndDate        string
 	EmploymentType string
+	Ohid           string
 }

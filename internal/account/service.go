@@ -4,7 +4,7 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/credential"
-	"github.com/mrexmelle/connect-idp/internal/ehid"
+	"github.com/mrexmelle/connect-idp/internal/hasher"
 	"github.com/mrexmelle/connect-idp/internal/profile"
 	"github.com/mrexmelle/connect-idp/internal/tenure"
 )
@@ -61,7 +61,7 @@ func Disperse(req AccountPostRequest) (
 	credential.CredentialCreateRequest,
 	profile.ProfileCreateRequest,
 ) {
-	ehid := ehid.FromEmployeeId(req.EmployeeId)
+	ehid := hasher.ToEhid(req.EmployeeId)
 
 	cred := credential.CredentialCreateRequest{
 		EmployeeId: req.EmployeeId,
@@ -131,6 +131,7 @@ func (s *Service) PostTenure(
 		StartDate:      request.StartDate,
 		EndDate:        request.EndDate,
 		EmploymentType: request.EmploymentType,
+		Ohid:           request.Ohid,
 	}
 	return s.TenureRepository.Create(data)
 }

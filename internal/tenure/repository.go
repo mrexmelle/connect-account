@@ -33,22 +33,24 @@ func (r *Repository) CreateWithDb(db *gorm.DB, req TenureCreateRequest) error {
 	var res *gorm.DB
 	if edErr == nil {
 		res = db.Exec(
-			"INSERT INTO "+r.TableName+"(ehid, start_date, end_date, employment_type, "+
+			"INSERT INTO "+r.TableName+"(ehid, start_date, end_date, employment_type, ohid, "+
 				"created_at, updated_at) "+
-				"VALUES(?, ?, ?, ?, NOW(), NOW())",
+				"VALUES(?, ?, ?, ?, ?, NOW(), NOW())",
 			req.Ehid,
 			datatypes.Date(sd),
 			datatypes.Date(ed),
 			req.EmploymentType,
+			req.Ohid,
 		)
 	} else {
 		res = db.Exec(
-			"INSERT INTO "+r.TableName+"(ehid, start_date, employment_type, "+
+			"INSERT INTO "+r.TableName+"(ehid, start_date, employment_type, ohid, "+
 				"created_at, updated_at) "+
-				"VALUES(?, ?, ?, NOW(), NOW())",
+				"VALUES(?, ?, ?, ?, NOW(), NOW())",
 			req.Ehid,
 			datatypes.Date(sd),
 			req.EmploymentType,
+			req.Ohid,
 		)
 	}
 
@@ -66,22 +68,24 @@ func (r *Repository) Create(req TenureCreateRequest) error {
 	var res *gorm.DB
 	if edErr == nil {
 		res = r.Config.Db.Exec(
-			"INSERT INTO "+r.TableName+"(ehid, start_date, end_date, employment_type, "+
+			"INSERT INTO "+r.TableName+"(ehid, start_date, end_date, employment_type, ohid, "+
 				"created_at, updated_at) "+
-				"VALUES(?, ?, ?, ?, NOW(), NOW())",
+				"VALUES(?, ?, ?, ?, ?, NOW(), NOW())",
 			req.Ehid,
 			datatypes.Date(sd),
 			datatypes.Date(ed),
 			req.EmploymentType,
+			req.Ohid,
 		)
 	} else {
 		res = r.Config.Db.Exec(
-			"INSERT INTO "+r.TableName+"(ehid, start_date, employment_type, "+
+			"INSERT INTO "+r.TableName+"(ehid, start_date, employment_type, ohid, "+
 				"created_at, updated_at) "+
-				"VALUES(?, ?, ?, NOW(), NOW())",
+				"VALUES(?, ?, ?, ?, NOW(), NOW())",
 			req.Ehid,
 			datatypes.Date(sd),
 			req.EmploymentType,
+			req.Ohid,
 		)
 	}
 
@@ -120,7 +124,7 @@ func (r *Repository) UpdateEndDateByIdAndEhid(
 
 func (r *Repository) FindByEhid(ehid string) (TenureRetrieveResponse, error) {
 	result := r.Config.Db.
-		Select("id, start_date, end_date, employment_type").
+		Select("id, start_date, end_date, employment_type, ohid").
 		Table(r.TableName).
 		Where("ehid = ?", ehid)
 	var response = TenureRetrieveResponse{
@@ -143,6 +147,46 @@ func (r *Repository) FindByEhid(ehid string) (TenureRetrieveResponse, error) {
 			&startDate,
 			&endDate,
 			&t.EmploymentType,
+			&t.Ohid,
+		)
+		t.StartDate = startDate.Format("2006-01-02")
+		if endDate.Valid {
+			t.EndDate = endDate.Time.Format("2006-01-02")
+		} else {
+			t.EndDate = ""
+		}
+		response.Tenures = append(response.Tenures, t)
+	}
+
+	return response, result.Error
+}
+
+func (r *Repository) FindCurrentTenureByEhid(ehid string) (TenureRetrieveResponse, error) {
+	result := r.Config.Db.
+		Select("id, start_date, end_date, employment_type, ohid").
+		Table(r.TableName).
+		Where("ehid = ? AND (end_date IS NULL OR end_date > NOW())", ehid)
+	var response = TenureRetrieveResponse{
+		Ehid:    ehid,
+		Tenures: make([]Tenure, result.RowsAffected),
+	}
+
+	rows, err := result.Rows()
+	if err != nil {
+		return response, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var t Tenure
+		var startDate time.Time
+		var endDate sql.NullTime
+		rows.Scan(
+			&t.Id,
+			&startDate,
+			&endDate,
+			&t.EmploymentType,
+			&t.Ohid,
 		)
 		t.StartDate = startDate.Format("2006-01-02")
 		if endDate.Valid {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/credential"
-	"github.com/mrexmelle/connect-idp/internal/ehid"
+	"github.com/mrexmelle/connect-idp/internal/hasher"
 )
 
 type Service struct {
@@ -38,7 +38,7 @@ func (s *Service) GenerateJwt(employeeId string) (string, time.Time, error) {
 			"exp": exp.Unix(),
 			"iat": now.Unix(),
 			"iss": "connect-iam",
-			"sub": ehid.FromEmployeeId(employeeId),
+			"sub": hasher.ToEhid(employeeId),
 		},
 	)
 

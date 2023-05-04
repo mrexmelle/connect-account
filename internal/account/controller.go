@@ -84,9 +84,9 @@ func (c *Controller) GetMyProfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "GET failure: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
-	res, err := c.AccountService.RetrieveProfile(claims["sub"].(string))
+	result, err := c.AccountService.RetrieveProfile(claims["sub"].(string))
 
-	responseBody, _ := json.Marshal(&res)
+	responseBody, _ := json.Marshal(&result)
 	w.Write([]byte(responseBody))
 }
 
@@ -96,8 +96,8 @@ func (c *Controller) GetMyTenures(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "GET failure: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
-	res, err := c.AccountService.RetrieveTenures(claims["sub"].(string))
+	result, err := c.AccountService.RetrieveTenures(claims["sub"].(string))
 
-	responseBody, _ := json.Marshal(&res)
+	responseBody, _ := json.Marshal(&result)
 	w.Write([]byte(responseBody))
 }

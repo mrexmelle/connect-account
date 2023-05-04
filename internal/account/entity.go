@@ -41,10 +41,12 @@ type Tenure struct {
 	StartDate      string `json:"startDate"`
 	EndDate        string `json:"endDate"`
 	EmploymentType string `json:"employmentType"`
+	Ohid           string `json:"ohid"`
 }
 
 type AccountPostTenureRequest struct {
 	StartDate      string `json:"startDate"`
 	EndDate        string `json:"endDate"`
 	EmploymentType string `json:"employmentType"`
+	Ohid           string `json:"ohid"`
 }

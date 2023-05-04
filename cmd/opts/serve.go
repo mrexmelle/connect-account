@@ -13,6 +13,7 @@ import (
 	"github.com/mrexmelle/connect-idp/internal/account"
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/credential"
+	"github.com/mrexmelle/connect-idp/internal/organization"
 	"github.com/mrexmelle/connect-idp/internal/profile"
 	"github.com/mrexmelle/connect-idp/internal/session"
 	"github.com/mrexmelle/connect-idp/internal/tenure"
@@ -43,13 +44,17 @@ func Serve(cmd *cobra.Command, args []string) {
 	container.Provide(credential.NewRepository)
 	container.Provide(profile.NewRepository)
 	container.Provide(tenure.NewRepository)
+	container.Provide(organization.NewRepository)
 	container.Provide(account.NewService)
 	container.Provide(session.NewService)
+	container.Provide(organization.NewService)
 	container.Provide(account.NewController)
 	container.Provide(session.NewController)
+	container.Provide(organization.NewController)
 
 	process := func(
 		accountController *account.Controller,
+		organizationController *organization.Controller,
 		sessionController *session.Controller,
 		config *config.Config,
 	) {
@@ -71,6 +76,11 @@ func Serve(cmd *cobra.Command, args []string) {
 
 		r.Route("/sessions", func(r chi.Router) {
 			r.Post("/", sessionController.Post)
+		})
+
+		r.Route("/organizations", func(r chi.Router) {
+			r.Post("/", organizationController.Post)
+			r.Get("/{ohid}", organizationController.Get)
 		})
 
 		r.Group(func(r chi.Router) {

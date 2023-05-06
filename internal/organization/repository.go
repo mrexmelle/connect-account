@@ -2,7 +2,6 @@ package organization
 
 import (
 	"github.com/mrexmelle/connect-idp/internal/config"
-	"github.com/mrexmelle/connect-idp/internal/hasher"
 )
 
 type Repository struct {
@@ -18,14 +17,12 @@ func NewRepository(cfg *config.Config) *Repository {
 }
 
 func (r *Repository) Create(req Entity) (Entity, error) {
-	ohid := hasher.ToOhid(req.Id)
 	result := r.Config.Db.Exec(
-		"INSERT INTO "+r.TableName+"(id, ohid, parent_id, name, lead_ehid, "+
+		"INSERT INTO "+r.TableName+"(id, hierarchy, name, lead_ehid, "+
 			"created_at, updated_at) "+
-			"VALUES(?, ?, ?, ?, ?, NOW(), NOW())",
+			"VALUES(?, ?, ?, ?, NOW(), NOW())",
 		req.Id,
-		ohid,
-		req.ParentId,
+		req.Hierarchy,
 		req.Name,
 		req.LeadEhid,
 	)
@@ -34,27 +31,25 @@ func (r *Repository) Create(req Entity) (Entity, error) {
 	}
 
 	return Entity{
-		Id:       req.Id,
-		Ohid:     ohid,
-		ParentId: req.ParentId,
-		Name:     req.Name,
-		LeadEhid: req.LeadEhid,
+		Id:        req.Id,
+		Hierarchy: req.Hierarchy,
+		Name:      req.Name,
+		LeadEhid:  req.LeadEhid,
 	}, nil
 }
 
-func (r *Repository) FindByOhid(ohid string) (Entity, error) {
+func (r *Repository) FindById(id string) (Entity, error) {
 	entity := Entity{
-		Ohid: ohid,
+		Id: id,
 	}
 
 	err := r.Config.Db.
-		Select("id, parent_id, name, lead_ehid").
+		Select("hierarchy, name, lead_ehid").
 		Table(r.TableName).
-		Where("ohid = ?", ohid).
+		Where("id = ?", id).
 		Row().
 		Scan(
-			&entity.Id,
-			&entity.ParentId,
+			&entity.Hierarchy,
 			&entity.Name,
 			&entity.LeadEhid)
 	if err != nil {

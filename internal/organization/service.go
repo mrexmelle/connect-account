@@ -33,8 +33,8 @@ func (s *Service) Create(req Entity) ResponseDto {
 	}
 }
 
-func (s *Service) RetrieveByOhid(ohid string) ResponseDto {
-	result, err := s.OrganizationRepository.FindByOhid(ohid)
+func (s *Service) RetrieveById(id string) ResponseDto {
+	result, err := s.OrganizationRepository.FindById(id)
 	if err != nil {
 		return ResponseDto{
 			Organization: Entity{},

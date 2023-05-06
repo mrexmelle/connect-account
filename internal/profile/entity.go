@@ -1,15 +1,9 @@
 package profile
 
-type ProfileCreateRequest struct {
-	Ehid       string
-	EmployeeId string
-	Name       string
-	Dob        string
-}
-
-type ProfileRetrieveResponse struct {
-	Ehid       string
-	EmployeeId string
-	Name       string
-	Dob        string
+type Entity struct {
+	Ehid         string `json:"ehid"`
+	EmployeeId   string `json:"employeeId"`
+	Name         string `json:"name"`
+	EmailAddress string `json:"emailAddress"`
+	Dob          string `json:"dob"`
 }

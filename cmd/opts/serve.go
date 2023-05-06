@@ -11,6 +11,9 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth"
 	"github.com/mrexmelle/connect-idp/internal/account"
+	accountMe "github.com/mrexmelle/connect-idp/internal/account/me"
+	accountProfile "github.com/mrexmelle/connect-idp/internal/account/profile"
+	accountTenure "github.com/mrexmelle/connect-idp/internal/account/tenure"
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/credential"
 	"github.com/mrexmelle/connect-idp/internal/organization"
@@ -41,19 +44,28 @@ func EnableCors(w *http.ResponseWriter) {
 func Serve(cmd *cobra.Command, args []string) {
 	container := dig.New()
 	container.Provide(NewConfig)
+
 	container.Provide(credential.NewRepository)
 	container.Provide(profile.NewRepository)
 	container.Provide(tenure.NewRepository)
 	container.Provide(organization.NewRepository)
+
 	container.Provide(account.NewService)
+	container.Provide(accountProfile.NewService)
+	container.Provide(accountTenure.NewService)
 	container.Provide(session.NewService)
 	container.Provide(organization.NewService)
+
 	container.Provide(account.NewController)
+	container.Provide(accountTenure.NewController)
+	container.Provide(accountMe.NewController)
 	container.Provide(session.NewController)
 	container.Provide(organization.NewController)
 
 	process := func(
 		accountController *account.Controller,
+		accountTenureController *accountTenure.Controller,
+		accountMeController *accountMe.Controller,
 		organizationController *organization.Controller,
 		sessionController *session.Controller,
 		config *config.Config,
@@ -70,8 +82,11 @@ func Serve(cmd *cobra.Command, args []string) {
 
 		r.Route("/accounts", func(r chi.Router) {
 			r.Post("/", accountController.Post)
-			r.Post("/{ehid}/tenures", accountController.PostTenure)
-			r.Patch("/{ehid}/tenures/{tenureId}/end-date", accountController.PatchEndDate)
+		})
+
+		r.Route("/accounts/{ehid}/tenures", func(r chi.Router) {
+			r.Post("/", accountTenureController.Post)
+			r.Patch("/{tenureId}/end-date", accountTenureController.PatchEndDate)
 		})
 
 		r.Route("/sessions", func(r chi.Router) {
@@ -80,19 +95,19 @@ func Serve(cmd *cobra.Command, args []string) {
 
 		r.Route("/organizations", func(r chi.Router) {
 			r.Post("/", organizationController.Post)
-			r.Get("/{ohid}", organizationController.Get)
+			r.Get("/{id}", organizationController.Get)
 		})
 
 		r.Group(func(r chi.Router) {
-			logger := httplog.NewLogger("accounts-me-logger", httplog.Options{
+			logger := httplog.NewLogger("secure-path-logger", httplog.Options{
 				JSON: true,
 			})
 			r.Use(httplog.RequestLogger(logger))
 			r.Use(jwtauth.Verifier(config.TokenAuth))
 
 			r.Route("/accounts/me", func(r chi.Router) {
-				r.Get("/profile", accountController.GetMyProfile)
-				r.Get("/tenures", accountController.GetMyTenures)
+				r.Get("/profile", accountMeController.GetProfile)
+				r.Get("/tenures", accountMeController.GetTenures)
 			})
 		})
 

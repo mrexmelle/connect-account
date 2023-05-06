@@ -21,14 +21,15 @@ func NewRepository(cfg *config.Config) *Repository {
 
 func (r *Repository) CreateWithDb(
 	db *gorm.DB,
-	req CredentialCreateRequest,
+	employeeId string,
+	password string,
 ) error {
 	res := db.Exec(
 		"INSERT INTO "+r.TableName+"(employee_id, password_hash, "+
 			"created_at, updated_at) "+
 			"VALUES(?, CRYPT(?, GEN_SALT('bf', 8)), NOW(), NOW())",
-		req.EmployeeId,
-		req.Password,
+		employeeId,
+		password,
 	)
 	return res.Error
 }

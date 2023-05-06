@@ -1,4 +1,4 @@
-package hasher
+package mapper
 
 import (
 	"crypto/sha256"
@@ -12,9 +12,9 @@ func ToEhid(employeeId string) string {
 	return fmt.Sprintf("u%x", hasher.Sum(nil))
 }
 
-func ToOhid(organizationId string) string {
-	hasher := sha256.New()
-	hasher.Write([]byte(organizationId))
-
-	return fmt.Sprintf("o%x", hasher.Sum(nil))
+func ToStatus(err error) string {
+	if err != nil {
+		return err.Error()
+	}
+	return "OK"
 }

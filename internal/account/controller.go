@@ -3,10 +3,7 @@ package account
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/jwtauth"
 	"github.com/mrexmelle/connect-idp/internal/config"
 )
 
@@ -36,68 +33,5 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 	responseBody, _ := json.Marshal(
 		&AccountPostResponse{Status: "OK"},
 	)
-	w.Write([]byte(responseBody))
-}
-
-func (c *Controller) PostTenure(w http.ResponseWriter, r *http.Request) {
-	var requestBody AccountPostTenureRequest
-	json.NewDecoder(r.Body).Decode(&requestBody)
-
-	ehid := chi.URLParam(r, "ehid")
-	err := c.AccountService.PostTenure(ehid, requestBody)
-	if err != nil {
-		http.Error(w, "POST Failure: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	responseBody, _ := json.Marshal(
-		&AccountPostResponse{Status: "OK"},
-	)
-	w.Write([]byte(responseBody))
-}
-
-func (c *Controller) PatchEndDate(w http.ResponseWriter, r *http.Request) {
-	var requestBody AccountPatchRequest
-	json.NewDecoder(r.Body).Decode(&requestBody)
-
-	ehid := chi.URLParam(r, "ehid")
-	tenureId, err := strconv.Atoi(chi.URLParam(r, "tenureId"))
-	if err != nil {
-		http.Error(w, "PATCH failure: "+err.Error(), http.StatusBadRequest)
-	}
-
-	err = c.AccountService.UpdateEndDate(ehid, tenureId, requestBody)
-	if err != nil {
-		http.Error(w, "PATCH failure: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	responseBody, _ := json.Marshal(
-		&AccountPatchResponse{Status: "OK"},
-	)
-	w.Write([]byte(responseBody))
-}
-
-func (c *Controller) GetMyProfile(w http.ResponseWriter, r *http.Request) {
-	_, claims, err := jwtauth.FromContext(r.Context())
-	if err != nil {
-		http.Error(w, "GET failure: "+err.Error(), http.StatusUnauthorized)
-		return
-	}
-	result, err := c.AccountService.RetrieveProfile(claims["sub"].(string))
-
-	responseBody, _ := json.Marshal(&result)
-	w.Write([]byte(responseBody))
-}
-
-func (c *Controller) GetMyTenures(w http.ResponseWriter, r *http.Request) {
-	_, claims, err := jwtauth.FromContext(r.Context())
-	if err != nil {
-		http.Error(w, "GET failure: "+err.Error(), http.StatusUnauthorized)
-		return
-	}
-	result, err := c.AccountService.RetrieveTenures(claims["sub"].(string))
-
-	responseBody, _ := json.Marshal(&result)
 	w.Write([]byte(responseBody))
 }

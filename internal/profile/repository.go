@@ -20,37 +20,48 @@ func NewRepository(cfg *config.Config) *Repository {
 	}
 }
 
-func (r *Repository) CreateWithDb(db *gorm.DB, req ProfileCreateRequest) error {
+func (r *Repository) CreateWithDb(db *gorm.DB, req Entity) (Entity, error) {
 	ts, err := time.Parse("2006-01-02", req.Dob)
 	if err != nil {
-		return err
+		return Entity{}, err
 	}
 
 	res := db.Exec(
-		"INSERT INTO "+r.TableName+"(ehid, employee_id, name, dob, "+
+		"INSERT INTO "+r.TableName+"(ehid, employee_id, name, email_address, dob, "+
 			"created_at, updated_at) "+
-			"VALUES(?, ?, ?, ?, NOW(), NOW())",
+			"VALUES(?, ?, ?, ?, ?, NOW(), NOW())",
 		req.Ehid,
 		req.EmployeeId,
 		req.Name,
+		req.EmailAddress,
 		datatypes.Date(ts),
 	)
-	return res.Error
+	if res.Error != nil {
+		return Entity{}, res.Error
+	}
+
+	return Entity{
+		Ehid:         req.Ehid,
+		EmployeeId:   req.EmployeeId,
+		Name:         req.Name,
+		EmailAddress: req.EmailAddress,
+		Dob:          req.Dob,
+	}, nil
 }
 
-func (r *Repository) FindByEhid(ehid string) (ProfileRetrieveResponse, error) {
-	response := ProfileRetrieveResponse{
+func (r *Repository) FindByEhid(ehid string) (Entity, error) {
+	response := Entity{
 		Ehid: ehid,
 	}
 	var dob time.Time
 	err := r.Config.Db.
-		Select("name, employee_id, dob").
+		Select("employee_id, name, email_address, dob").
 		Table(r.TableName).
 		Where("ehid = ?", ehid).
 		Row().
-		Scan(&response.Name, &response.EmployeeId, &dob)
+		Scan(&response.EmployeeId, &response.Name, &response.EmailAddress, &dob)
 	if err != nil {
-		return ProfileRetrieveResponse{}, err
+		return Entity{}, err
 	}
 
 	response.Dob = dob.Format("2006-01-02")

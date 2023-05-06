@@ -19,6 +19,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON credentials TO idp;
 CREATE TABLE IF NOT EXISTS profiles(
 	ehid TEXT NOT NULL,
 	employee_id TEXT NOT NULL,
+	email_address TEXT NOT NULL,
 	name TEXT NOT NULL,
 	dob DATE NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL,
@@ -29,16 +30,17 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON profiles TO idp;
 
 CREATE TABLE IF NOT EXISTS organizations(
 	id TEXT NOT NULL,
-	ohid TEXT NOT NULL,
-	parent_id TEXT,
+	hierarchy TEXT NOT NULL,
 	name TEXT NOT NULL,
 	lead_ehid TEXT,
+	email_address TEXT,
+	private_slack_channel TEXT,
+	public_slack_channel TEXT,
 	created_at TIMESTAMPTZ NOT NULL,
 	updated_at TIMESTAMPTZ NOT NULL,
 	deleted_at TIMESTAMPTZ DEFAULT NULL,
 	CONSTRAINT pk_organizations PRIMARY KEY(id),
-	CONSTRAINT fk_organizations FOREIGN KEY(lead_ehid) REFERENCES profiles(ehid),
-	CONSTRAINT uk_organizations UNIQUE(ohid)
+	CONSTRAINT fk_organizations FOREIGN KEY(lead_ehid) REFERENCES profiles(ehid)
 );
 GRANT SELECT, UPDATE, INSERT, DELETE ON organizations TO idp;
 
@@ -48,12 +50,12 @@ CREATE TABLE IF NOT EXISTS tenures(
 	start_date DATE NOT NULL,
 	end_date DATE DEFAULT NULL,
 	employment_type TEXT,
-	ohid TEXT,
+	organization_id TEXT,
 	created_at TIMESTAMPTZ NOT NULL,
 	updated_at TIMESTAMPTZ NOT NULL,
 	CONSTRAINT pk_tenures PRIMARY KEY(id),
 	CONSTRAINT fk1_tenures FOREIGN KEY(ehid) REFERENCES profiles(ehid),
-	CONSTRAINT fk2_tenures FOREIGN KEY(ohid) REFERENCES organizations(ohid),
+	CONSTRAINT fk2_tenures FOREIGN KEY(organization_id) REFERENCES organizations(id),
 	CONSTRAINT uk_tenures UNIQUE(ehid, start_date)
 );
 GRANT SELECT, UPDATE, INSERT, DELETE ON tenures TO idp;
@@ -62,7 +64,8 @@ GRANT USAGE ON SEQUENCE tenures_id_seq TO idp;
 CREATE TABLE IF NOT EXISTS titles(
 	id SERIAL,
 	grade TEXT NOT NULL,
-	type TEXT NOT NULL,
+	career_type TEXT NOT NULL,
+	domain TEXT NOT NULL, 
 	name TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL,
 	updated_at TIMESTAMPTZ NOT NULL,

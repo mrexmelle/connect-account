@@ -35,9 +35,9 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
-	ohid := chi.URLParam(r, "ohid")
+	id := chi.URLParam(r, "id")
 
-	response := c.OrganizationService.RetrieveByOhid(ohid)
+	response := c.OrganizationService.RetrieveById(id)
 	if response.Status != "OK" {
 		http.Error(w, "GET failure: "+response.Status, http.StatusInternalServerError)
 		return

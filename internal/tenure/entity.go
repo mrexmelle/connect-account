@@ -7,4 +7,6 @@ type Entity struct {
 	EndDate        string `json:"endDate"`
 	EmploymentType string `json:"employmentType"`
 	OrganizationId string `json:"organizationId"`
+	TitleGrade     string `json:"titleGrade"`
+	TitleName      string `json:"titleName"`
 }

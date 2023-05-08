@@ -4,8 +4,9 @@ go 1.19
 
 require (
 	github.com/go-chi/chi v1.5.4
+	github.com/go-chi/cors v1.2.1
+	github.com/go-chi/httplog v0.3.0
 	github.com/go-chi/jwtauth v1.2.0
-	github.com/jinzhu/copier v0.3.5
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	go.uber.org/dig v1.16.1
@@ -17,8 +18,6 @@ require (
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-chi/chi/v5 v5.0.7 // indirect
-	github.com/go-chi/cors v1.2.1 // indirect
-	github.com/go-chi/httplog v0.3.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/goccy/go-json v0.3.5 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

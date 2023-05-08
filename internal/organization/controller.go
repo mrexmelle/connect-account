@@ -46,3 +46,16 @@ func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
 	responseBody, _ := json.Marshal(&response)
 	w.Write([]byte(responseBody))
 }
+
+func (c *Controller) Delete(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	response := c.OrganizationService.DeleteById(id)
+	if response.Status != "OK" {
+		http.Error(w, "GET failure: "+response.Status, http.StatusInternalServerError)
+		return
+	}
+
+	responseBody, _ := json.Marshal(&response)
+	w.Write([]byte(responseBody))
+}

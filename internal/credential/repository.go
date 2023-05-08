@@ -57,7 +57,7 @@ func (r *Repository) DeleteByEmployeeId(employeeId string) error {
 	now := time.Now()
 	result := r.Config.Db.
 		Table(r.TableName).
-		Where("employee_id = ? AND deleted_at IS NOT NULL", employeeId).
+		Where("employee_id = ? AND deleted_at IS NULL", employeeId).
 		Updates(
 			map[string]interface{}{
 				"deleted_at": now,

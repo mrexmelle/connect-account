@@ -39,8 +39,7 @@ CREATE TABLE IF NOT EXISTS organizations(
 	created_at TIMESTAMPTZ NOT NULL,
 	updated_at TIMESTAMPTZ NOT NULL,
 	deleted_at TIMESTAMPTZ DEFAULT NULL,
-	CONSTRAINT pk_organizations PRIMARY KEY(id),
-	CONSTRAINT fk_organizations FOREIGN KEY(lead_ehid) REFERENCES profiles(ehid)
+	CONSTRAINT pk_organizations PRIMARY KEY(id)
 );
 GRANT SELECT, UPDATE, INSERT, DELETE ON organizations TO idp;
 

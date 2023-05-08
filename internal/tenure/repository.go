@@ -22,16 +22,15 @@ func NewRepository(cfg *config.Config) *Repository {
 	}
 }
 
-func (r *Repository) CreateWithDb(db *gorm.DB, req Entity) (Entity, error) {
+func (r *Repository) Create(req Entity) (Entity, error) {
 	sd, err := time.Parse("2006-01-02", req.StartDate)
 	if err != nil {
 		return Entity{}, err
 	}
 
 	var res *gorm.DB
-	var id int64
 	if req.EndDate == "" {
-		res = db.Exec(
+		res = r.Config.Db.Raw(
 			"INSERT INTO "+r.TableName+"(ehid, start_date, employment_type, organization_id, "+
 				"created_at, updated_at) "+
 				"VALUES(?, ?, ?, ?, NOW(), NOW()) RETURNING id",
@@ -39,13 +38,13 @@ func (r *Repository) CreateWithDb(db *gorm.DB, req Entity) (Entity, error) {
 			datatypes.Date(sd),
 			req.EmploymentType,
 			req.OrganizationId,
-		).Scan(&id)
+		).Scan(&req.Id)
 	} else {
 		ed, err := time.Parse("2006-01-02", req.EndDate)
 		if err != nil {
 			return Entity{}, err
 		}
-		res = db.Exec(
+		res = r.Config.Db.Raw(
 			"INSERT INTO "+r.TableName+"(ehid, start_date, end_date, employment_type, organization_id, "+
 				"created_at, updated_at) "+
 				"VALUES(?, ?, ?, ?, ?, NOW(), NOW()) RETURNING id",
@@ -54,25 +53,14 @@ func (r *Repository) CreateWithDb(db *gorm.DB, req Entity) (Entity, error) {
 			datatypes.Date(ed),
 			req.EmploymentType,
 			req.OrganizationId,
-		).Scan(&id)
+		).Scan(&req.Id)
 	}
 
 	if res.Error != nil {
 		return Entity{}, res.Error
 	}
 
-	return Entity{
-		Id:             id,
-		Ehid:           req.Ehid,
-		StartDate:      req.StartDate,
-		EndDate:        req.EndDate,
-		EmploymentType: req.EmploymentType,
-		OrganizationId: req.OrganizationId,
-	}, nil
-}
-
-func (r *Repository) Create(req Entity) (Entity, error) {
-	return r.CreateWithDb(r.Config.Db, req)
+	return req, nil
 }
 
 func (r *Repository) UpdateEndDateByIdAndEhid(
@@ -109,7 +97,8 @@ func (r *Repository) FindByEhid(ehid string) ([]Entity, error) {
 	result := r.Config.Db.
 		Select("id, start_date, end_date, employment_type, organization_id").
 		Table(r.TableName).
-		Where("ehid = ?", ehid)
+		Where("ehid = ?", ehid).
+		Order("start_date DESC")
 	var response = make([]Entity, result.RowsAffected)
 
 	rows, err := result.Rows()
@@ -145,7 +134,7 @@ func (r *Repository) FindCurrentTenureByEhid(ehid string) ([]Entity, error) {
 	result := r.Config.Db.
 		Select("id, start_date, end_date, employment_type, organization_id").
 		Table(r.TableName).
-		Where("ehid = ? AND (end_date IS NULL OR end_date > NOW())", ehid)
+		Where("ehid = ? AND start_date < NOW() AND (end_date IS NULL OR end_date > NOW())", ehid)
 	var response = make([]Entity, result.RowsAffected)
 
 	rows, err := result.Rows()

@@ -1,6 +1,8 @@
 package organization
 
 import (
+	"time"
+
 	"github.com/mrexmelle/connect-idp/internal/config"
 )
 
@@ -56,4 +58,25 @@ func (r *Repository) FindById(id string) (Entity, error) {
 		return Entity{}, err
 	}
 	return entity, nil
+}
+
+func (r *Repository) DeleteById(id string) error {
+	now := time.Now()
+	result := r.Config.Db.
+		Table(r.TableName).
+		Where("id = ? AND deleted_at IS NULL", id).
+		Updates(
+			map[string]interface{}{
+				"lead_ehid":             "",
+				"email_address":         "",
+				"private_slack_channel": "",
+				"public_slack_channel":  "",
+				"deleted_at":            now,
+				"updated_at":            now,
+			},
+		)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

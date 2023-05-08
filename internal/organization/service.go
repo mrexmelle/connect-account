@@ -2,6 +2,7 @@ package organization
 
 import (
 	"github.com/mrexmelle/connect-idp/internal/config"
+	"github.com/mrexmelle/connect-idp/internal/mapper"
 )
 
 type Service struct {
@@ -44,5 +45,13 @@ func (s *Service) RetrieveById(id string) ResponseDto {
 	return ResponseDto{
 		Organization: result,
 		Status:       "OK",
+	}
+}
+
+func (s *Service) DeleteById(id string) ResponseDto {
+	err := s.OrganizationRepository.DeleteById(id)
+	return ResponseDto{
+		Organization: Entity{},
+		Status:       mapper.ToStatus(err),
 	}
 }

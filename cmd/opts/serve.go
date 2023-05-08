@@ -96,6 +96,7 @@ func Serve(cmd *cobra.Command, args []string) {
 		r.Route("/organizations", func(r chi.Router) {
 			r.Post("/", organizationController.Post)
 			r.Get("/{id}", organizationController.Get)
+			r.Delete("/{id}", organizationController.Delete)
 		})
 
 		r.Group(func(r chi.Router) {

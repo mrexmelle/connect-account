@@ -20,10 +20,7 @@ func NewService(
 	}
 }
 
-func (s *Service) Create(
-	ehid string,
-	request tenure.Entity,
-) SingleResponseDto {
+func (s *Service) Create(request tenure.Entity) SingleResponseDto {
 	result, err := s.TenureRepository.Create(request)
 	return SingleResponseDto{
 		Tenure: result,

@@ -26,8 +26,8 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 	var requestBody tenure.Entity
 	json.NewDecoder(r.Body).Decode(&requestBody)
 
-	ehid := chi.URLParam(r, "ehid")
-	response := c.AccountTenureService.Create(ehid, requestBody)
+	requestBody.Ehid = chi.URLParam(r, "ehid")
+	response := c.AccountTenureService.Create(requestBody)
 	responseBody, _ := json.Marshal(&response)
 	w.Write([]byte(responseBody))
 }

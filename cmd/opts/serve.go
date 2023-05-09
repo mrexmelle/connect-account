@@ -18,6 +18,7 @@ import (
 	"github.com/mrexmelle/connect-idp/internal/credential"
 	"github.com/mrexmelle/connect-idp/internal/organization"
 	organizationMember "github.com/mrexmelle/connect-idp/internal/organization/member"
+	organizationTree "github.com/mrexmelle/connect-idp/internal/organization/tree"
 	"github.com/mrexmelle/connect-idp/internal/profile"
 	"github.com/mrexmelle/connect-idp/internal/session"
 	"github.com/mrexmelle/connect-idp/internal/tenure"
@@ -57,6 +58,7 @@ func Serve(cmd *cobra.Command, args []string) {
 	container.Provide(accountTenure.NewService)
 	container.Provide(session.NewService)
 	container.Provide(organization.NewService)
+	container.Provide(organizationTree.NewService)
 	container.Provide(organizationMember.NewService)
 
 	container.Provide(account.NewController)
@@ -64,6 +66,7 @@ func Serve(cmd *cobra.Command, args []string) {
 	container.Provide(accountMe.NewController)
 	container.Provide(session.NewController)
 	container.Provide(organization.NewController)
+	container.Provide(organizationTree.NewController)
 	container.Provide(organizationMember.NewController)
 
 	process := func(
@@ -72,6 +75,7 @@ func Serve(cmd *cobra.Command, args []string) {
 		accountMeController *accountMe.Controller,
 		organizationController *organization.Controller,
 		organizationMemberController *organizationMember.Controller,
+		organizationTreeController *organizationTree.Controller,
 		sessionController *session.Controller,
 		config *config.Config,
 	) {
@@ -106,6 +110,10 @@ func Serve(cmd *cobra.Command, args []string) {
 
 		r.Route("/organizations/{id}/members", func(r chi.Router) {
 			r.Get("/", organizationMemberController.GetByOrganizationId)
+		})
+
+		r.Route("/organizations/{id}/ancestral-siblings", func(r chi.Router) {
+			r.Get("/", organizationTreeController.Get)
 		})
 
 		r.Group(func(r chi.Router) {

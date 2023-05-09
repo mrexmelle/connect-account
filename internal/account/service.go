@@ -63,3 +63,7 @@ func (s *Service) Register(req AccountPostRequest) error {
 
 	return trx.Commit().Error
 }
+
+func (s *Service) DeleteByEmployeeId(employeeId string) error {
+	return s.CredentialRepository.DeleteByEmployeeId(employeeId)
+}

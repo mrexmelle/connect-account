@@ -14,7 +14,10 @@ func NewRepository(cfg *config.Config) *Repository {
 	}
 }
 
-func (r *Repository) RetrieveByOrganizationId(organizationId string) ([]Aggregate, error) {
+func (r *Repository) RetrieveByOrganizationIdWithKnownLeadEhid(
+	organizationId string,
+	leadEhid string,
+) ([]Aggregate, error) {
 	result, err := r.Config.Db.
 		Table("profiles").
 		Select("profiles.ehid, profiles.employee_id, profiles.name, profiles.email_address, tenures.title_name").
@@ -24,10 +27,11 @@ func (r *Repository) RetrieveByOrganizationId(organizationId string) ([]Aggregat
 			organizationId,
 		).
 		Rows()
-	defer result.Close()
 	if err != nil {
 		return []Aggregate{}, err
 	}
+	defer result.Close()
+
 	aggregates := make([]Aggregate, 0)
 	for result.Next() {
 		var agg = Aggregate{

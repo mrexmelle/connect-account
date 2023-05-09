@@ -20,37 +20,37 @@ func NewService(
 	}
 }
 
-func (s *Service) Create(req Entity) ResponseDto {
+func (s *Service) Create(req Entity) SingleResponseDto {
 	result, err := s.OrganizationRepository.Create(req)
 	if err != nil {
-		return ResponseDto{
+		return SingleResponseDto{
 			Organization: Entity{},
 			Status:       err.Error(),
 		}
 	}
-	return ResponseDto{
+	return SingleResponseDto{
 		Organization: result,
 		Status:       "OK",
 	}
 }
 
-func (s *Service) RetrieveById(id string) ResponseDto {
+func (s *Service) RetrieveById(id string) SingleResponseDto {
 	result, err := s.OrganizationRepository.FindById(id)
 	if err != nil {
-		return ResponseDto{
+		return SingleResponseDto{
 			Organization: Entity{},
 			Status:       err.Error(),
 		}
 	}
-	return ResponseDto{
+	return SingleResponseDto{
 		Organization: result,
 		Status:       "OK",
 	}
 }
 
-func (s *Service) DeleteById(id string) ResponseDto {
+func (s *Service) DeleteById(id string) SingleResponseDto {
 	err := s.OrganizationRepository.DeleteById(id)
-	return ResponseDto{
+	return SingleResponseDto{
 		Organization: Entity{},
 		Status:       mapper.ToStatus(err),
 	}

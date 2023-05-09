@@ -24,16 +24,17 @@ func NewService(
 }
 
 func (s *Service) RetrieveByOrganizationId(id string) ResponseDto {
+	leadEhid := ""
 	orgResult, err := s.OrganizationRepository.FindById(id)
-	if err != nil {
-		return ResponseDto{
-			Members: []Aggregate{},
-			Status:  err.Error(),
-		}
+	if err == nil {
+		leadEhid = orgResult.LeadEhid
 	}
-	leadEhid := orgResult.LeadEhid
 
-	aggResult, err := s.OrganizationMemberRepository.RetrieveByOrganizationId(id)
+	aggResult, err := s.OrganizationMemberRepository.
+		RetrieveByOrganizationIdWithKnownLeadEhid(
+			id,
+			leadEhid,
+		)
 	if err != nil {
 		return ResponseDto{
 			Members: []Aggregate{},

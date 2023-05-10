@@ -23,23 +23,25 @@ func NewRepository(cfg *config.Config) *Repository {
 
 func (r *Repository) Create(req Entity) (Entity, error) {
 	result := r.Config.Db.Exec(
-		"INSERT INTO "+r.TableName+"(id, hierarchy, name, lead_ehid, "+
+		"INSERT INTO "+r.TableName+"(id, hierarchy, name, lead_ehid, email_address, "+
 			"created_at, updated_at) "+
-			"VALUES(?, ?, ?, ?, NOW(), NOW())",
+			"VALUES(?, ?, ?, ?, ?, NOW(), NOW())",
 		req.Id,
 		req.Hierarchy,
 		req.Name,
 		req.LeadEhid,
+		req.EmailAddress,
 	)
 	if result.Error != nil {
 		return Entity{}, result.Error
 	}
 
 	return Entity{
-		Id:        req.Id,
-		Hierarchy: req.Hierarchy,
-		Name:      req.Name,
-		LeadEhid:  req.LeadEhid,
+		Id:           req.Id,
+		Hierarchy:    req.Hierarchy,
+		Name:         req.Name,
+		LeadEhid:     req.LeadEhid,
+		EmailAddress: req.EmailAddress,
 	}, nil
 }
 
@@ -49,14 +51,16 @@ func (r *Repository) FindById(id string) (Entity, error) {
 	}
 
 	err := r.Config.Db.
-		Select("hierarchy, name, lead_ehid").
+		Select("hierarchy, name, lead_ehid, email_address").
 		Table(r.TableName).
 		Where("id = ? AND deleted_at IS NULL", id).
 		Row().
 		Scan(
 			&entity.Hierarchy,
 			&entity.Name,
-			&entity.LeadEhid)
+			&entity.LeadEhid,
+			&entity.EmailAddress,
+		)
 	if err != nil {
 		return Entity{}, err
 	}
@@ -106,7 +110,7 @@ func (r *Repository) FindSiblingsAndAncestralSiblingsByHierarchy(hierarchy strin
 	}
 
 	result, err := r.Config.Db.
-		Select("id, hierarchy, name, lead_ehid").
+		Select("id, hierarchy, name, lead_ehid, email_address").
 		Table(r.TableName).
 		Where(whereClause).
 		Where("deleted_at IS NULL").
@@ -120,7 +124,7 @@ func (r *Repository) FindSiblingsAndAncestralSiblingsByHierarchy(hierarchy strin
 	orgs := make([]Entity, 0)
 	for result.Next() {
 		org := Entity{}
-		result.Scan(&org.Id, &org.Hierarchy, &org.Name, &org.LeadEhid)
+		result.Scan(&org.Id, &org.Hierarchy, &org.Name, &org.LeadEhid, &org.EmailAddress)
 		orgs = append(orgs, org)
 	}
 	return orgs, nil
@@ -129,7 +133,7 @@ func (r *Repository) FindSiblingsAndAncestralSiblingsByHierarchy(hierarchy strin
 func (r *Repository) FindChildrenByHierarchy(hierarchy string) ([]Entity, error) {
 	whereClause := fmt.Sprintf("hierarchy SIMILAR TO '%s.[A-Z0-9]*'", hierarchy)
 	result, err := r.Config.Db.
-		Select("id, hierarchy, name, lead_ehid").
+		Select("id, hierarchy, name, lead_ehid, email_address").
 		Table(r.TableName).
 		Where(whereClause).
 		Where("deleted_at IS NULL").
@@ -143,7 +147,7 @@ func (r *Repository) FindChildrenByHierarchy(hierarchy string) ([]Entity, error)
 	orgs := make([]Entity, 0)
 	for result.Next() {
 		org := Entity{}
-		result.Scan(&org.Id, &org.Hierarchy, &org.Name, &org.LeadEhid)
+		result.Scan(&org.Id, &org.Hierarchy, &org.Name, &org.LeadEhid, &org.EmailAddress)
 		orgs = append(orgs, org)
 	}
 	return orgs, nil

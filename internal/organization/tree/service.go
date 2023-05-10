@@ -75,7 +75,13 @@ func (s *Service) RetrieveChildrenById(id string) ResponseDto {
 		Children:     []Aggregate{},
 	}
 	for i := 0; i < len(orgs); i++ {
-		aggregate.Children = append(aggregate.Children, Aggregate{Organization: orgs[i]})
+		aggregate.Children = append(
+			aggregate.Children,
+			Aggregate{
+				Organization: orgs[i],
+				Children:     []Aggregate{},
+			},
+		)
 	}
 	return ResponseDto{
 		Tree:   aggregate,

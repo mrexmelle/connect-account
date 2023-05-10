@@ -112,8 +112,12 @@ func Serve(cmd *cobra.Command, args []string) {
 			r.Get("/", organizationMemberController.GetByOrganizationId)
 		})
 
-		r.Route("/organizations/{id}/ancestral-siblings", func(r chi.Router) {
-			r.Get("/", organizationTreeController.Get)
+		r.Route("/organizations/{id}/siblings-and-ancestral-siblings", func(r chi.Router) {
+			r.Get("/", organizationTreeController.GetSiblingsAndAncestralSiblings)
+		})
+
+		r.Route("/organizations/{id}/children", func(r chi.Router) {
+			r.Get("/", organizationTreeController.GetChildren)
 		})
 
 		r.Group(func(r chi.Router) {

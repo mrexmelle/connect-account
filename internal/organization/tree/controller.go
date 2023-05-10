@@ -20,10 +20,23 @@ func NewController(cfg *config.Config, svc *Service) *Controller {
 	}
 }
 
-func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetSiblingsAndAncestralSiblings(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	response := c.OrganizationTreeService.RetrieveAncestralSiblingsById(id)
+	response := c.OrganizationTreeService.RetrieveSiblingsAndAncestralSiblingsById(id)
+	if response.Status != "OK" {
+		http.Error(w, "GET failure: "+response.Status, http.StatusInternalServerError)
+		return
+	}
+
+	responseBody, _ := json.Marshal(&response)
+	w.Write([]byte(responseBody))
+}
+
+func (c *Controller) GetChildren(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	response := c.OrganizationTreeService.RetrieveChildrenById(id)
 	if response.Status != "OK" {
 		http.Error(w, "GET failure: "+response.Status, http.StatusInternalServerError)
 		return

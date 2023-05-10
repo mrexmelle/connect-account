@@ -84,7 +84,7 @@ func (r *Repository) DeleteById(id string) error {
 	return nil
 }
 
-func (r *Repository) FindAncestralSiblingsByHierarchy(hierarchy string) ([]Entity, error) {
+func (r *Repository) FindSiblingsAndAncestralSiblingsByHierarchy(hierarchy string) ([]Entity, error) {
 	lineage := strings.Split(hierarchy, ".")
 	if len(lineage) == 0 {
 		return []Entity{}, errors.New("no hierarchy found")
@@ -100,11 +100,37 @@ func (r *Repository) FindAncestralSiblingsByHierarchy(hierarchy string) ([]Entit
 		lineage[i] = fmt.Sprintf("%s.%s", lineage[i-1], lineage[i])
 	}
 
-	whereClause := "hierarchy SIMILAR TO '[A-Z]*' "
-	for i := 0; i < len(lineage); i++ {
-		whereClause += fmt.Sprintf("OR hierarchy SIMILAR TO '%s.[A-Z]*' ", lineage[i])
+	whereClause := "hierarchy SIMILAR TO '[A-Z0-9]*' "
+	for i := 0; i < len(lineage)-1; i++ {
+		whereClause += fmt.Sprintf("OR hierarchy SIMILAR TO '%s.[A-Z0-9]*' ", lineage[i])
 	}
 
+	result, err := r.Config.Db.
+		Select("id, hierarchy, name, lead_ehid").
+		Table(r.TableName).
+		Where(whereClause).
+		Where("deleted_at IS NULL").
+		Order("hierarchy ASC").
+		Rows()
+	if err != nil {
+		return []Entity{}, err
+	}
+	defer result.Close()
+
+	orgs := make([]Entity, 0)
+	for result.Next() {
+		org := Entity{}
+		result.Scan(&org.Id, &org.Hierarchy, &org.Name, &org.LeadEhid)
+		orgs = append(orgs, org)
+	}
+	return orgs, nil
+}
+
+func (r *Repository) FindChildrenByHierarchy(hierarchy string) ([]Entity, error) {
+	whereClause := fmt.Sprintf("hierarchy = '%s' OR hierarchy SIMILAR TO '%s.[A-Z0-9]*'",
+		hierarchy,
+		hierarchy,
+	)
 	result, err := r.Config.Db.
 		Select("id, hierarchy, name, lead_ehid").
 		Table(r.TableName).

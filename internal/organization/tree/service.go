@@ -23,7 +23,7 @@ func NewService(
 	}
 }
 
-func (s *Service) RetrieveAncestralSiblingsById(id string) ResponseDto {
+func (s *Service) RetrieveSiblingsAndAncestralSiblingsById(id string) ResponseDto {
 	orgResult, err := s.OrganizationRepository.FindById(id)
 	if err != nil {
 		return ResponseDto{
@@ -32,7 +32,7 @@ func (s *Service) RetrieveAncestralSiblingsById(id string) ResponseDto {
 		}
 	}
 
-	orgs, err := s.OrganizationRepository.FindAncestralSiblingsByHierarchy(orgResult.Hierarchy)
+	orgs, err := s.OrganizationRepository.FindSiblingsAndAncestralSiblingsByHierarchy(orgResult.Hierarchy)
 	if err != nil {
 		return ResponseDto{
 			Tree:   Aggregate{},
@@ -45,6 +45,37 @@ func (s *Service) RetrieveAncestralSiblingsById(id string) ResponseDto {
 		Children:     []Aggregate{},
 	}
 	for i := 0; i < len(orgs); i++ {
+		s.AssignEntityIntoTree(orgs[i].Hierarchy, orgs[i], &aggregate)
+	}
+	return ResponseDto{
+		Tree:   aggregate,
+		Status: "OK",
+	}
+}
+
+func (s *Service) RetrieveChildrenById(id string) ResponseDto {
+	orgResult, err := s.OrganizationRepository.FindById(id)
+	if err != nil {
+		return ResponseDto{
+			Tree:   Aggregate{},
+			Status: err.Error(),
+		}
+	}
+
+	orgs, err := s.OrganizationRepository.FindChildrenByHierarchy(orgResult.Hierarchy)
+	if err != nil {
+		return ResponseDto{
+			Tree:   Aggregate{},
+			Status: err.Error(),
+		}
+	}
+
+	aggregate := Aggregate{
+		Organization: organization.Entity{},
+		Children:     []Aggregate{},
+	}
+	for i := 0; i < len(orgs); i++ {
+		fmt.Printf("org hierarchy: %s\n", orgs[i].Hierarchy)
 		s.AssignEntityIntoTree(orgs[i].Hierarchy, orgs[i], &aggregate)
 	}
 	return ResponseDto{
@@ -69,28 +100,30 @@ func (s *Service) AssignEntityIntoTree(
 		return
 	}
 
-	if aggregate.Organization.Id == lineage[0] {
-		newHierarchy := lineage[1]
-		if len(lineage) > 2 {
-			for i := 2; i < len(lineage); i++ {
-				newHierarchy += fmt.Sprintf(".%s", lineage[i])
-			}
+	if aggregate.Organization.Id != lineage[0] {
+		aggregate.Organization = organization.Entity{Id: lineage[0]}
+	}
+	newHierarchy := lineage[1]
+	if len(lineage) > 2 {
+		for i := 2; i < len(lineage); i++ {
+			newHierarchy += fmt.Sprintf(".%s", lineage[i])
+			fmt.Printf("new hierarchy: %s\n", newHierarchy)
 		}
-		i := 0
-		for i = 0; i < len(aggregate.Children); i++ {
-			if aggregate.Children[i].Organization.Id == lineage[1] {
-				s.AssignEntityIntoTree(newHierarchy, entity, &aggregate.Children[i])
-				return
-			}
+	}
+	i := 0
+	for i = 0; i < len(aggregate.Children); i++ {
+		if aggregate.Children[i].Organization.Id == lineage[1] {
+			s.AssignEntityIntoTree(newHierarchy, entity, &aggregate.Children[i])
+			return
 		}
-		if i == len(aggregate.Children) {
-			aggregate.Children = append(
-				aggregate.Children,
-				Aggregate{
-					Organization: organization.Entity{Id: lineage[1]},
-				},
-			)
-			s.AssignEntityIntoTree(newHierarchy, entity, &aggregate.Children[len(aggregate.Children)-1])
-		}
+	}
+	if i == len(aggregate.Children) {
+		aggregate.Children = append(
+			aggregate.Children,
+			Aggregate{
+				Organization: organization.Entity{Id: lineage[1]},
+			},
+		)
+		s.AssignEntityIntoTree(newHierarchy, entity, &aggregate.Children[len(aggregate.Children)-1])
 	}
 }

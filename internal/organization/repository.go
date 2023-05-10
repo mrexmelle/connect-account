@@ -127,10 +127,7 @@ func (r *Repository) FindSiblingsAndAncestralSiblingsByHierarchy(hierarchy strin
 }
 
 func (r *Repository) FindChildrenByHierarchy(hierarchy string) ([]Entity, error) {
-	whereClause := fmt.Sprintf("hierarchy = '%s' OR hierarchy SIMILAR TO '%s.[A-Z0-9]*'",
-		hierarchy,
-		hierarchy,
-	)
+	whereClause := fmt.Sprintf("hierarchy SIMILAR TO '%s.[A-Z0-9]*'", hierarchy)
 	result, err := r.Config.Db.
 		Select("id, hierarchy, name, lead_ehid").
 		Table(r.TableName).

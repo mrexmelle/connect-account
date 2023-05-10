@@ -71,12 +71,11 @@ func (s *Service) RetrieveChildrenById(id string) ResponseDto {
 	}
 
 	aggregate := Aggregate{
-		Organization: organization.Entity{},
+		Organization: orgResult,
 		Children:     []Aggregate{},
 	}
 	for i := 0; i < len(orgs); i++ {
-		fmt.Printf("org hierarchy: %s\n", orgs[i].Hierarchy)
-		s.AssignEntityIntoTree(orgs[i].Hierarchy, orgs[i], &aggregate)
+		aggregate.Children = append(aggregate.Children, Aggregate{Organization: orgs[i]})
 	}
 	return ResponseDto{
 		Tree:   aggregate,

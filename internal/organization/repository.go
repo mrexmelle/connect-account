@@ -50,11 +50,10 @@ func (r *Repository) FindById(id string) (Entity, error) {
 	entity := Entity{
 		Id: id,
 	}
-
 	err := r.Config.Db.
 		Select("hierarchy, name, lead_ehid, email_address").
 		Table(r.TableName).
-		Where("id = ? AND deleted_at IS NULL", id).
+		Where("id = ?", id).
 		Row().
 		Scan(
 			&entity.Hierarchy,

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/mrexmelle/connect-idp/internal/config"
+	"gorm.io/gorm"
 )
 
 type Repository struct {
@@ -108,14 +109,7 @@ func (r *Repository) FindSiblingsAndAncestralSiblingsByHierarchy(hierarchy strin
 	for i := 0; i < len(lineage)-1; i++ {
 		whereClause += fmt.Sprintf("OR hierarchy SIMILAR TO '%s.[A-Z0-9]*' ", lineage[i])
 	}
-
-	result, err := r.Config.Db.
-		Select("id, hierarchy, name, lead_ehid, email_address").
-		Table(r.TableName).
-		Where(whereClause).
-		Where("deleted_at IS NULL").
-		Order("hierarchy ASC").
-		Rows()
+	result, err := r.ComposeQuery(whereClause).Order("hierarchy ASC").Rows()
 	if err != nil {
 		return []Entity{}, err
 	}
@@ -132,13 +126,7 @@ func (r *Repository) FindSiblingsAndAncestralSiblingsByHierarchy(hierarchy strin
 
 func (r *Repository) FindChildrenByHierarchy(hierarchy string) ([]Entity, error) {
 	whereClause := fmt.Sprintf("hierarchy SIMILAR TO '%s.[A-Z0-9]*'", hierarchy)
-	result, err := r.Config.Db.
-		Select("id, hierarchy, name, lead_ehid, email_address").
-		Table(r.TableName).
-		Where(whereClause).
-		Where("deleted_at IS NULL").
-		Order("hierarchy ASC").
-		Rows()
+	result, err := r.ComposeQuery(whereClause).Order("hierarchy ASC").Rows()
 	if err != nil {
 		return []Entity{}, err
 	}
@@ -151,4 +139,47 @@ func (r *Repository) FindChildrenByHierarchy(hierarchy string) ([]Entity, error)
 		orgs = append(orgs, org)
 	}
 	return orgs, nil
+}
+
+func (r *Repository) FindLineageByHierarchy(hierarchy string) ([]Entity, error) {
+	lineage := strings.Split(hierarchy, ".")
+	if len(lineage) == 0 {
+		return []Entity{}, errors.New("no hierarchy found")
+	} else if len(lineage) == 1 {
+		o, err := r.FindById(lineage[0])
+		if err != nil {
+			return []Entity{}, err
+		}
+		return []Entity{o}, nil
+	}
+
+	for i := 1; i < len(lineage); i++ {
+		lineage[i] = fmt.Sprintf("%s.%s", lineage[i-1], lineage[i])
+	}
+
+	whereClause := fmt.Sprintf("hierarchy = '%s'", lineage[0])
+	for i := 1; i < len(lineage); i++ {
+		whereClause += fmt.Sprintf("OR hierarchy = '%s' ", lineage[i])
+	}
+	result, err := r.ComposeQuery(whereClause).Order("hierarchy ASC").Rows()
+	if err != nil {
+		return []Entity{}, err
+	}
+	defer result.Close()
+
+	orgs := make([]Entity, 0)
+	for result.Next() {
+		org := Entity{}
+		result.Scan(&org.Id, &org.Hierarchy, &org.Name, &org.LeadEhid, &org.EmailAddress)
+		orgs = append(orgs, org)
+	}
+	return orgs, nil
+}
+
+func (r *Repository) ComposeQuery(whereClause string) *gorm.DB {
+	return r.Config.Db.
+		Select("id, hierarchy, name, lead_ehid, email_address").
+		Table(r.TableName).
+		Where(whereClause).
+		Where("deleted_at IS NULL")
 }

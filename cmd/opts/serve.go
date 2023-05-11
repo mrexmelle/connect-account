@@ -120,6 +120,10 @@ func Serve(cmd *cobra.Command, args []string) {
 			r.Get("/", organizationTreeController.GetChildren)
 		})
 
+		r.Route("/organizations/{id}/lineage", func(r chi.Router) {
+			r.Get("/", organizationTreeController.GetLineage)
+		})
+
 		r.Group(func(r chi.Router) {
 			logger := httplog.NewLogger("secure-path-logger", httplog.Options{
 				JSON: true,

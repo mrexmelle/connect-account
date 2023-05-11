@@ -89,6 +89,36 @@ func (s *Service) RetrieveChildrenById(id string) ResponseDto {
 	}
 }
 
+func (s *Service) RetrieveLineageById(id string) ResponseDto {
+	orgResult, err := s.OrganizationRepository.FindById(id)
+	if err != nil {
+		return ResponseDto{
+			Tree:   Aggregate{},
+			Status: err.Error(),
+		}
+	}
+
+	orgs, err := s.OrganizationRepository.FindLineageByHierarchy(orgResult.Hierarchy)
+	if err != nil {
+		return ResponseDto{
+			Tree:   Aggregate{},
+			Status: err.Error(),
+		}
+	}
+
+	aggregate := Aggregate{
+		Organization: organization.Entity{},
+		Children:     []Aggregate{},
+	}
+	for i := 0; i < len(orgs); i++ {
+		s.AssignEntityIntoTree(orgs[i].Hierarchy, orgs[i], &aggregate)
+	}
+	return ResponseDto{
+		Tree:   aggregate,
+		Status: "OK",
+	}
+}
+
 func (s *Service) AssignEntityIntoTree(
 	hierarchy string,
 	entity organization.Entity,
@@ -112,7 +142,6 @@ func (s *Service) AssignEntityIntoTree(
 	if len(lineage) > 2 {
 		for i := 2; i < len(lineage); i++ {
 			newHierarchy += fmt.Sprintf(".%s", lineage[i])
-			fmt.Printf("new hierarchy: %s\n", newHierarchy)
 		}
 	}
 	i := 0

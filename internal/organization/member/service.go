@@ -35,7 +35,7 @@ func (s *Service) RetrieveByOrganizationId(id string) ResponseDto {
 	}
 
 	aggResult, err := s.OrganizationMemberRepository.
-		RetrieveByOrganizationIdWithKnownLeadEhid(
+		RetrieveByOrganizationIdWithLeadEhid(
 			id,
 			leadEhid,
 		)

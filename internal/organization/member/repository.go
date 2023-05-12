@@ -14,13 +14,14 @@ func NewRepository(cfg *config.Config) *Repository {
 	}
 }
 
-func (r *Repository) RetrieveByOrganizationIdWithKnownLeadEhid(
+func (r *Repository) RetrieveByOrganizationIdWithLeadEhid(
 	organizationId string,
 	leadEhid string,
 ) ([]Aggregate, error) {
 	result, err := r.Config.Db.
 		Table("profiles").
-		Select("profiles.ehid, profiles.employee_id, profiles.name, profiles.email_address, tenures.title_name").
+		Select("profiles.ehid, profiles.employee_id, profiles.name, profiles.email_address, "+
+			"tenures.title_name, tenures.employment_type").
 		Joins("LEFT JOIN tenures ON profiles.ehid = tenures.ehid").
 		Where(
 			"(profiles.ehid = ? OR tenures.organization_id = ?) AND "+
@@ -39,7 +40,7 @@ func (r *Repository) RetrieveByOrganizationIdWithKnownLeadEhid(
 		var agg = Aggregate{
 			IsLead: false,
 		}
-		result.Scan(&agg.Ehid, &agg.EmployeeId, &agg.Name, &agg.EmailAddress, &agg.TitleName)
+		result.Scan(&agg.Ehid, &agg.EmployeeId, &agg.Name, &agg.EmailAddress, &agg.TitleName, &agg.EmploymentType)
 		if agg.Ehid == leadEhid {
 			agg.IsLead = true
 		}

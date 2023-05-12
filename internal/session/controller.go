@@ -2,6 +2,7 @@ package session
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/mrexmelle/connect-idp/internal/config"
@@ -23,6 +24,8 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 	var requestBody SessionPostRequest
 	json.NewDecoder(r.Body).Decode(&requestBody)
 
+	fmt.Println("Post: Before authenticating")
+
 	queryResult, err := c.SessionService.Authenticate(requestBody)
 
 	if err != nil {
@@ -30,10 +33,12 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if queryResult == false {
+	if !queryResult {
 		http.Error(w, "POST failure: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
+
+	fmt.Println("Post: Before signing")
 
 	signingResult, exp, err := c.SessionService.GenerateJwt(requestBody.EmployeeId)
 	if err != nil {

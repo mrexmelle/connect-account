@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Config struct {
@@ -66,7 +67,9 @@ func CreateDb(configKey string) (*gorm.DB, error) {
 	}
 	return gorm.Open(
 		postgres.Open(strings.TrimSpace(dsn)),
-		&gorm.Config{},
+		&gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+		},
 	)
 }
 

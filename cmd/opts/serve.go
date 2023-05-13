@@ -91,6 +91,7 @@ func Serve(cmd *cobra.Command, args []string) {
 
 		r.Route("/accounts", func(r chi.Router) {
 			r.Post("/", accountController.Post)
+			r.Delete("/{employee_id}", accountController.Delete)
 		})
 
 		r.Route("/accounts/{ehid}/tenures", func(r chi.Router) {

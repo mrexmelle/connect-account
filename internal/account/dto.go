@@ -8,7 +8,7 @@ type AccountPostRequest struct {
 	Password     string `json:"password"`
 }
 
-type AccountPostResponse struct {
+type AccountResponse struct {
 	Status string `json:"status"`
 }
 

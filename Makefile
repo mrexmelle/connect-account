@@ -19,4 +19,7 @@ docker-image:
 docker-push:
 	docker push $(IMAGE_NAME):$(VERSION)
 
+test:
+	go test ./internal/...
+
 all: $(PROJECT_NAME)

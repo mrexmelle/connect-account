@@ -19,7 +19,7 @@ GRANT SELECT, UPDATE, INSERT, DELETE ON credentials TO idp;
 CREATE TABLE IF NOT EXISTS profiles(
 	ehid TEXT NOT NULL,
 	employee_id TEXT NOT NULL,
-	email_address TEXT NOT NULL,
+	email_address TEXT,
 	name TEXT NOT NULL,
 	dob DATE NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL,

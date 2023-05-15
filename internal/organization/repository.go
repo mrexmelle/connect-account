@@ -156,7 +156,7 @@ func (r *Repository) FindLineageByHierarchy(hierarchy string) ([]Entity, error) 
 		lineage[i] = fmt.Sprintf("%s.%s", lineage[i-1], lineage[i])
 	}
 
-	whereClause := fmt.Sprintf("hierarchy = '%s'", lineage[0])
+	whereClause := fmt.Sprintf("hierarchy = '%s' ", lineage[0])
 	for i := 1; i < len(lineage); i++ {
 		whereClause += fmt.Sprintf("OR hierarchy = '%s' ", lineage[i])
 	}

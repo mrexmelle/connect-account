@@ -20,10 +20,10 @@ func NewController(cfg *config.Config, svc *Service) *Controller {
 	}
 }
 
-func (c *Controller) GetByOrganizationId(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) Get(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	response := c.OrganizationMemberService.RetrieveByOrganizationId(id)
+	response := c.OrganizationMemberService.RetrieveById(id)
 	if response.Status != "OK" {
 		http.Error(w, "GET failure: "+response.Status, http.StatusInternalServerError)
 		return

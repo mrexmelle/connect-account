@@ -12,7 +12,9 @@ import (
 	"github.com/go-chi/jwtauth"
 	"github.com/mrexmelle/connect-idp/internal/account"
 	accountMe "github.com/mrexmelle/connect-idp/internal/account/me"
+	accountOrganization "github.com/mrexmelle/connect-idp/internal/account/organization"
 	accountProfile "github.com/mrexmelle/connect-idp/internal/account/profile"
+	accountSuperior "github.com/mrexmelle/connect-idp/internal/account/superior"
 	accountTenure "github.com/mrexmelle/connect-idp/internal/account/tenure"
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/credential"
@@ -21,6 +23,7 @@ import (
 	organizationTree "github.com/mrexmelle/connect-idp/internal/organization/tree"
 	"github.com/mrexmelle/connect-idp/internal/profile"
 	"github.com/mrexmelle/connect-idp/internal/session"
+	"github.com/mrexmelle/connect-idp/internal/superior"
 	"github.com/mrexmelle/connect-idp/internal/tenure"
 	"go.uber.org/dig"
 )
@@ -52,6 +55,8 @@ func Serve(cmd *cobra.Command, args []string) {
 	container.Provide(tenure.NewRepository)
 	container.Provide(organization.NewRepository)
 	container.Provide(organizationMember.NewRepository)
+	container.Provide(accountOrganization.NewRepository)
+	container.Provide(superior.NewRepository)
 
 	container.Provide(account.NewService)
 	container.Provide(accountProfile.NewService)
@@ -60,6 +65,8 @@ func Serve(cmd *cobra.Command, args []string) {
 	container.Provide(organization.NewService)
 	container.Provide(organizationTree.NewService)
 	container.Provide(organizationMember.NewService)
+	container.Provide(accountOrganization.NewService)
+	container.Provide(accountSuperior.NewService)
 
 	container.Provide(account.NewController)
 	container.Provide(accountTenure.NewController)
@@ -110,7 +117,7 @@ func Serve(cmd *cobra.Command, args []string) {
 		})
 
 		r.Route("/organizations/{id}/members", func(r chi.Router) {
-			r.Get("/", organizationMemberController.GetByOrganizationId)
+			r.Get("/", organizationMemberController.Get)
 		})
 
 		r.Route("/organizations/{id}/siblings-and-ancestral-siblings", func(r chi.Router) {
@@ -135,6 +142,8 @@ func Serve(cmd *cobra.Command, args []string) {
 			r.Route("/accounts/me", func(r chi.Router) {
 				r.Get("/profile", accountMeController.GetProfile)
 				r.Get("/tenures", accountMeController.GetTenures)
+				r.Get("/organizations", accountMeController.GetOrganizations)
+				r.Get("/superiors", accountMeController.GetSuperiors)
 			})
 		})
 

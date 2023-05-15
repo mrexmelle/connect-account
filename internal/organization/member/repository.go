@@ -14,7 +14,7 @@ func NewRepository(cfg *config.Config) *Repository {
 	}
 }
 
-func (r *Repository) RetrieveByOrganizationIdWithLeadEhid(
+func (r *Repository) FindByIdWithLeadEhid(
 	organizationId string,
 	leadEhid string,
 ) ([]Aggregate, error) {

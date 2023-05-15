@@ -45,7 +45,7 @@ func (s *Service) RetrieveSiblingsAndAncestralSiblingsById(id string) ResponseDt
 		Children:     []Aggregate{},
 	}
 	for i := 0; i < len(orgs); i++ {
-		s.AssignEntityIntoTree(orgs[i].Hierarchy, orgs[i], &aggregate)
+		s.AssignEntityIntoTree(orgs[i], &aggregate)
 	}
 	return ResponseDto{
 		Tree:   aggregate,
@@ -111,7 +111,7 @@ func (s *Service) RetrieveLineageById(id string) ResponseDto {
 		Children:     []Aggregate{},
 	}
 	for i := 0; i < len(orgs); i++ {
-		s.AssignEntityIntoTree(orgs[i].Hierarchy, orgs[i], &aggregate)
+		s.AssignEntityIntoTree(orgs[i], &aggregate)
 	}
 	return ResponseDto{
 		Tree:   aggregate,
@@ -119,7 +119,11 @@ func (s *Service) RetrieveLineageById(id string) ResponseDto {
 	}
 }
 
-func (s *Service) AssignEntityIntoTree(
+func (s *Service) AssignEntityIntoTree(entity organization.Entity, aggregate *Aggregate) {
+	s._AssignEntityIntoTree(entity.Hierarchy, entity, aggregate)
+}
+
+func (s *Service) _AssignEntityIntoTree(
 	hierarchy string,
 	entity organization.Entity,
 	aggregate *Aggregate,
@@ -147,7 +151,7 @@ func (s *Service) AssignEntityIntoTree(
 	i := 0
 	for i = 0; i < len(aggregate.Children); i++ {
 		if aggregate.Children[i].Organization.Id == lineage[1] {
-			s.AssignEntityIntoTree(newHierarchy, entity, &aggregate.Children[i])
+			s._AssignEntityIntoTree(newHierarchy, entity, &aggregate.Children[i])
 			return
 		}
 	}
@@ -158,6 +162,6 @@ func (s *Service) AssignEntityIntoTree(
 				Organization: organization.Entity{Id: lineage[1]},
 			},
 		)
-		s.AssignEntityIntoTree(newHierarchy, entity, &aggregate.Children[len(aggregate.Children)-1])
+		s._AssignEntityIntoTree(newHierarchy, entity, &aggregate.Children[len(aggregate.Children)-1])
 	}
 }

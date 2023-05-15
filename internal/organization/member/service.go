@@ -27,7 +27,7 @@ func NewService(
 	}
 }
 
-func (s *Service) RetrieveByOrganizationId(id string) ResponseDto {
+func (s *Service) RetrieveById(id string) ResponseDto {
 	leadEhid := ""
 	orgResult, err := s.OrganizationRepository.FindById(id)
 	if err == nil {
@@ -35,7 +35,7 @@ func (s *Service) RetrieveByOrganizationId(id string) ResponseDto {
 	}
 
 	aggResult, err := s.OrganizationMemberRepository.
-		RetrieveByOrganizationIdWithLeadEhid(
+		FindByIdWithLeadEhid(
 			id,
 			leadEhid,
 		)

@@ -22,7 +22,7 @@ func Test_AssignEntityIntoTree_Single(t *testing.T) {
 	}
 
 	service := Service{}
-	service.AssignEntityIntoTree(entity.Hierarchy, entity, &agg)
+	service.AssignEntityIntoTree(entity, &agg)
 	assert.Equal(t, agg.Organization.Id, entity.Id)
 	assert.Equal(t, agg.Organization.Hierarchy, entity.Hierarchy)
 	assert.Equal(t, agg.Organization.Name, entity.Name)
@@ -55,8 +55,8 @@ func Test_AssignEntityIntoTree_OneChild(t *testing.T) {
 	}
 
 	service := Service{}
-	service.AssignEntityIntoTree(entity[0].Hierarchy, entity[0], &agg)
-	service.AssignEntityIntoTree(entity[1].Hierarchy, entity[1], &agg)
+	service.AssignEntityIntoTree(entity[0], &agg)
+	service.AssignEntityIntoTree(entity[1], &agg)
 
 	assert.Equal(t, agg.Organization.Id, entity[0].Id)
 	assert.Equal(t, agg.Organization.Hierarchy, entity[0].Hierarchy)
@@ -102,9 +102,9 @@ func Test_AssignEntityIntoTree_TwoChildren(t *testing.T) {
 	}
 
 	service := Service{}
-	service.AssignEntityIntoTree(entity[0].Hierarchy, entity[0], &agg)
-	service.AssignEntityIntoTree(entity[1].Hierarchy, entity[1], &agg)
-	service.AssignEntityIntoTree(entity[2].Hierarchy, entity[2], &agg)
+	service.AssignEntityIntoTree(entity[0], &agg)
+	service.AssignEntityIntoTree(entity[1], &agg)
+	service.AssignEntityIntoTree(entity[2], &agg)
 
 	assert.Equal(t, agg.Organization.Id, entity[0].Id)
 	assert.Equal(t, agg.Organization.Hierarchy, entity[0].Hierarchy)
@@ -157,9 +157,9 @@ func Test_AssignEntityIntoTree_TwoGenerations(t *testing.T) {
 	}
 
 	service := Service{}
-	service.AssignEntityIntoTree(entity[0].Hierarchy, entity[0], &agg)
-	service.AssignEntityIntoTree(entity[1].Hierarchy, entity[1], &agg)
-	service.AssignEntityIntoTree(entity[2].Hierarchy, entity[2], &agg)
+	service.AssignEntityIntoTree(entity[0], &agg)
+	service.AssignEntityIntoTree(entity[1], &agg)
+	service.AssignEntityIntoTree(entity[2], &agg)
 
 	assert.Equal(t, agg.Organization.Id, entity[0].Id)
 	assert.Equal(t, agg.Organization.Hierarchy, entity[0].Hierarchy)

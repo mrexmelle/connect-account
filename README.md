@@ -3,16 +3,21 @@
 ## Compiling
 
 ```
-$ go build -o connect-idp cmd/*.go
+$ make clean && make
 ```
 
 ## Building Docker image
 
-Note that only the owner of the repository is allowed to build the image. 
+```
+$ make docker-image
+```
+
+## Pushing Docker image to Container Registry
+
+Note that only the owner of the repository is allowed to push the image. 
 
 ```
-$ docker build -t ghcr.io/mrexmelle/connect-idp:${VERSION} .
-$ docker push ghcr.io/mrexmelle/connect-idp:${VERSION}
+$ make docker-release
 ```
 
 ## Running

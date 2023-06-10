@@ -3,27 +3,23 @@ package organizationMember
 import (
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/organization"
-	"github.com/mrexmelle/connect-idp/internal/tenure"
 )
 
 type Service struct {
 	Config                       *config.Config
 	OrganizationRepository       *organization.Repository
 	OrganizationMemberRepository *Repository
-	TenureRepository             *tenure.Repository
 }
 
 func NewService(
 	cfg *config.Config,
 	or *organization.Repository,
 	omr *Repository,
-	tr *tenure.Repository,
 ) *Service {
 	return &Service{
 		Config:                       cfg,
 		OrganizationRepository:       or,
 		OrganizationMemberRepository: omr,
-		TenureRepository:             tr,
 	}
 }
 

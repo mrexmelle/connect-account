@@ -56,9 +56,7 @@ func (r *Repository) FindByOrganizationHierarchy(hierarchy string) (Aggregate, e
 		result.Scan(&p.Ehid, &p.EmployeeId, &p.Name, &p.EmailAddress, &dob)
 		p.Dob = dob.Format("2006-01-02")
 
-		if len(profiles) == 0 || p.Ehid != profiles[len(profiles)-1].Ehid {
-			profiles = append(profiles, p)
-		}
+		profiles = append(profiles, p)
 	}
 
 	if len(profiles) == 0 {

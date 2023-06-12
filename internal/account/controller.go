@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/mrexmelle/connect-idp/internal/config"
+	"github.com/mrexmelle/connect-idp/internal/mapper"
 )
 
 type Controller struct {
@@ -38,10 +39,16 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Controller) Delete(w http.ResponseWriter, r *http.Request) {
-	employee_id := chi.URLParam(r, "employee_id")
+	employeeId := chi.URLParam(r, "employee_id")
 
-	err := c.AccountService.DeleteByEmployeeId(employee_id)
+	err := c.AccountService.DeleteByEmployeeId(employeeId)
+	if err != nil {
+		http.Error(w, "DELETE failure: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 
+	ehid := mapper.ToEhid(employeeId)
+	err = c.AccountService.DeleteEmailByEhid(ehid)
 	if err != nil {
 		http.Error(w, "DELETE failure: "+err.Error(), http.StatusInternalServerError)
 		return

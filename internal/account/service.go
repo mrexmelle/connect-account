@@ -67,3 +67,7 @@ func (s *Service) Register(req AccountPostRequest) error {
 func (s *Service) DeleteByEmployeeId(employeeId string) error {
 	return s.CredentialRepository.DeleteByEmployeeId(employeeId)
 }
+
+func (s *Service) DeleteEmailByEhid(ehid string) error {
+	return s.ProfileRepository.UpdateEmailByEhid("", ehid)
+}

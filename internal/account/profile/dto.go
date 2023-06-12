@@ -6,3 +6,7 @@ type ResponseDto struct {
 	Profile profile.Entity `json:"profile"`
 	Status  string         `json:"status"`
 }
+
+type PatchResponseDto struct {
+	Status string `json:"status"`
+}

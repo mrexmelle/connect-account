@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"errors"
 	"time"
 
 	"github.com/mrexmelle/connect-idp/internal/config"
@@ -66,4 +67,26 @@ func (r *Repository) FindByEhid(ehid string) (Entity, error) {
 
 	response.Dob = dob.Format("2006-01-02")
 	return response, nil
+}
+
+func (r *Repository) UpdateEmailByEhid(email string, ehid string) error {
+	result := r.Config.Db.
+		Table(r.TableName).
+		Where("ehid = ?", ehid).
+		Updates(
+			map[string]interface{}{
+				"email_address": email,
+				"updated_at":    time.Now(),
+			},
+		)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("request invalid")
+	}
+
+	return nil
 }

@@ -60,9 +60,8 @@ func (r *Repository) DeleteByEmployeeId(employeeId string) error {
 		Where("employee_id = ? AND deleted_at IS NULL", employeeId).
 		Updates(
 			map[string]interface{}{
-				"email_address": "",
-				"deleted_at":    now,
-				"updated_at":    now,
+				"deleted_at": now,
+				"updated_at": now,
 			},
 		)
 	if result.Error != nil {

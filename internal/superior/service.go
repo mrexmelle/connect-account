@@ -1,35 +1,34 @@
-package accountSuperior
+package superior
 
 import (
-	accountOrganization "github.com/mrexmelle/connect-idp/internal/account/organization"
 	"github.com/mrexmelle/connect-idp/internal/config"
+	"github.com/mrexmelle/connect-idp/internal/currentOrganization"
 	"github.com/mrexmelle/connect-idp/internal/mapper"
-	"github.com/mrexmelle/connect-idp/internal/superior"
 )
 
 type Service struct {
 	Config                        *config.Config
-	AccountOrganizationRepository *accountOrganization.Repository
-	SuperiorRepository            *superior.Repository
+	CurrentOrganizationRepository *currentOrganization.Repository
+	SuperiorRepository            *Repository
 }
 
 func NewService(
 	cfg *config.Config,
-	aor *accountOrganization.Repository,
-	sr *superior.Repository,
+	cor *currentOrganization.Repository,
+	r *Repository,
 ) *Service {
 	return &Service{
 		Config:                        cfg,
-		AccountOrganizationRepository: aor,
-		SuperiorRepository:            sr,
+		CurrentOrganizationRepository: cor,
+		SuperiorRepository:            r,
 	}
 }
 
 func (s *Service) RetrieveByEhid(ehid string) ResponseDto {
-	orgs, err := s.AccountOrganizationRepository.FindByEhid(ehid)
+	orgs, err := s.CurrentOrganizationRepository.FindByEhid(ehid)
 	if err != nil {
 		return ResponseDto{
-			Aggregate: superior.Aggregate{},
+			Aggregate: Aggregate{},
 			Status:    err.Error(),
 		}
 	}

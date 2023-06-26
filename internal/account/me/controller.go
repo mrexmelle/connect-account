@@ -5,34 +5,34 @@ import (
 	"net/http"
 
 	"github.com/go-chi/jwtauth"
-	accountOrganization "github.com/mrexmelle/connect-idp/internal/account/organization"
-	accountProfile "github.com/mrexmelle/connect-idp/internal/account/profile"
-	accountSuperior "github.com/mrexmelle/connect-idp/internal/account/superior"
-	accountTenure "github.com/mrexmelle/connect-idp/internal/account/tenure"
 	"github.com/mrexmelle/connect-idp/internal/config"
+	"github.com/mrexmelle/connect-idp/internal/currentOrganization"
+	"github.com/mrexmelle/connect-idp/internal/profile"
+	"github.com/mrexmelle/connect-idp/internal/superior"
+	"github.com/mrexmelle/connect-idp/internal/tenure"
 )
 
 type Controller struct {
 	Config                     *config.Config
-	AccountOrganizationService *accountOrganization.Service
-	AccountProfileService      *accountProfile.Service
-	AccountSuperiorService     *accountSuperior.Service
-	AccountTenureService       *accountTenure.Service
+	CurrentOrganizationService *currentOrganization.Service
+	ProfileService             *profile.Service
+	SuperiorService            *superior.Service
+	TenureService              *tenure.Service
 }
 
 func NewController(
 	cfg *config.Config,
-	aos *accountOrganization.Service,
-	aps *accountProfile.Service,
-	ass *accountSuperior.Service,
-	ats *accountTenure.Service,
+	cos *currentOrganization.Service,
+	ps *profile.Service,
+	ss *superior.Service,
+	ts *tenure.Service,
 ) *Controller {
 	return &Controller{
 		Config:                     cfg,
-		AccountOrganizationService: aos,
-		AccountProfileService:      aps,
-		AccountSuperiorService:     ass,
-		AccountTenureService:       ats,
+		CurrentOrganizationService: cos,
+		ProfileService:             ps,
+		SuperiorService:            ss,
+		TenureService:              ts,
 	}
 }
 
@@ -42,7 +42,7 @@ func (c *Controller) GetTenures(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "GET failure: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
-	response := c.AccountTenureService.RetrieveByEhid(claims["sub"].(string))
+	response := c.TenureService.RetrieveByEhid(claims["sub"].(string))
 	responseBody, _ := json.Marshal(&response)
 	w.Write([]byte(responseBody))
 }
@@ -53,18 +53,18 @@ func (c *Controller) GetProfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "GET failure: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
-	response := c.AccountProfileService.RetrieveByEhid(claims["sub"].(string))
+	response := c.ProfileService.RetrieveByEhid(claims["sub"].(string))
 	responseBody, _ := json.Marshal(&response)
 	w.Write([]byte(responseBody))
 }
 
-func (c *Controller) GetOrganizations(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetCurrentOrganizations(w http.ResponseWriter, r *http.Request) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {
 		http.Error(w, "GET failure: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
-	response := c.AccountOrganizationService.RetrieveByEhid(claims["sub"].(string))
+	response := c.CurrentOrganizationService.RetrieveByEhid(claims["sub"].(string))
 	responseBody, _ := json.Marshal(&response)
 	w.Write([]byte(responseBody))
 }
@@ -75,7 +75,7 @@ func (c *Controller) GetSuperiors(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "GET failure: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
-	response := c.AccountSuperiorService.RetrieveByEhid(claims["sub"].(string))
+	response := c.SuperiorService.RetrieveByEhid(claims["sub"].(string))
 	responseBody, _ := json.Marshal(&response)
 	w.Write([]byte(responseBody))
 }

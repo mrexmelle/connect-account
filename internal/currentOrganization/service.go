@@ -1,4 +1,4 @@
-package accountOrganization
+package currentOrganization
 
 import (
 	"github.com/mrexmelle/connect-idp/internal/config"
@@ -7,21 +7,21 @@ import (
 
 type Service struct {
 	Config                        *config.Config
-	AccountOrganizationRepository *Repository
+	CurrentOrganizationRepository *Repository
 }
 
 func NewService(
 	cfg *config.Config,
-	aor *Repository,
+	cor *Repository,
 ) *Service {
 	return &Service{
 		Config:                        cfg,
-		AccountOrganizationRepository: aor,
+		CurrentOrganizationRepository: cor,
 	}
 }
 
 func (s *Service) RetrieveByEhid(ehid string) ResponseDto {
-	result, err := s.AccountOrganizationRepository.FindByEhid(ehid)
+	result, err := s.CurrentOrganizationRepository.FindByEhid(ehid)
 	return ResponseDto{
 		Organizations: result,
 		Status:        mapper.ToStatus(err),

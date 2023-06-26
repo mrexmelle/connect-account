@@ -11,14 +11,14 @@ import (
 )
 
 type Controller struct {
-	Config               *config.Config
-	AccountTenureService *Service
+	Config        *config.Config
+	TenureService *tenure.Service
 }
 
-func NewController(cfg *config.Config, svc *Service) *Controller {
+func NewController(cfg *config.Config, ts *tenure.Service) *Controller {
 	return &Controller{
-		Config:               cfg,
-		AccountTenureService: svc,
+		Config:        cfg,
+		TenureService: ts,
 	}
 }
 
@@ -27,13 +27,13 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&requestBody)
 
 	requestBody.Ehid = chi.URLParam(r, "ehid")
-	response := c.AccountTenureService.Create(requestBody)
+	response := c.TenureService.Create(requestBody)
 	responseBody, _ := json.Marshal(&response)
 	w.Write([]byte(responseBody))
 }
 
 func (c *Controller) PatchEndDate(w http.ResponseWriter, r *http.Request) {
-	var requestBody PatchRequestDto
+	var requestBody tenure.PatchRequestDto
 	json.NewDecoder(r.Body).Decode(&requestBody)
 
 	ehid := chi.URLParam(r, "ehid")
@@ -42,7 +42,7 @@ func (c *Controller) PatchEndDate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "PATCH failure: "+err.Error(), http.StatusBadRequest)
 	}
 
-	response := c.AccountTenureService.UpdateEndDateByEhidAndTenureId(
+	response := c.TenureService.UpdateEndDateByEhidAndTenureId(
 		requestBody,
 		ehid,
 		tenureId,

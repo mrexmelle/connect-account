@@ -91,7 +91,7 @@ func (r *Repository) UpdateEndDateByIdAndEhid(
 	}
 
 	if result.RowsAffected == 0 {
-		return errors.New("Request Invalid")
+		return errors.New("request invalid")
 	}
 
 	return nil

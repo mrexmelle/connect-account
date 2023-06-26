@@ -12,12 +12,10 @@ import (
 	"github.com/go-chi/jwtauth"
 	"github.com/mrexmelle/connect-idp/internal/account"
 	accountMe "github.com/mrexmelle/connect-idp/internal/account/me"
-	accountOrganization "github.com/mrexmelle/connect-idp/internal/account/organization"
-	accountProfile "github.com/mrexmelle/connect-idp/internal/account/profile"
-	accountSuperior "github.com/mrexmelle/connect-idp/internal/account/superior"
 	accountTenure "github.com/mrexmelle/connect-idp/internal/account/tenure"
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/credential"
+	"github.com/mrexmelle/connect-idp/internal/currentOrganization"
 	"github.com/mrexmelle/connect-idp/internal/organization"
 	organizationMember "github.com/mrexmelle/connect-idp/internal/organization/member"
 	organizationTree "github.com/mrexmelle/connect-idp/internal/organization/tree"
@@ -55,18 +53,18 @@ func Serve(cmd *cobra.Command, args []string) {
 	container.Provide(tenure.NewRepository)
 	container.Provide(organization.NewRepository)
 	container.Provide(organizationMember.NewRepository)
-	container.Provide(accountOrganization.NewRepository)
+	container.Provide(currentOrganization.NewRepository)
 	container.Provide(superior.NewRepository)
 
 	container.Provide(account.NewService)
-	container.Provide(accountProfile.NewService)
-	container.Provide(accountTenure.NewService)
+	container.Provide(profile.NewService)
+	container.Provide(tenure.NewService)
 	container.Provide(session.NewService)
 	container.Provide(organization.NewService)
 	container.Provide(organizationTree.NewService)
 	container.Provide(organizationMember.NewService)
-	container.Provide(accountOrganization.NewService)
-	container.Provide(accountSuperior.NewService)
+	container.Provide(currentOrganization.NewService)
+	container.Provide(superior.NewService)
 
 	container.Provide(account.NewController)
 	container.Provide(accountTenure.NewController)
@@ -142,7 +140,7 @@ func Serve(cmd *cobra.Command, args []string) {
 			r.Route("/accounts/me", func(r chi.Router) {
 				r.Get("/profile", accountMeController.GetProfile)
 				r.Get("/tenures", accountMeController.GetTenures)
-				r.Get("/organizations", accountMeController.GetOrganizations)
+				r.Get("/current-organizations", accountMeController.GetCurrentOrganizations)
 				r.Get("/superiors", accountMeController.GetSuperiors)
 			})
 		})

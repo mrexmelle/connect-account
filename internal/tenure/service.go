@@ -1,26 +1,25 @@
-package accountTenure
+package tenure
 
 import (
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/mapper"
-	"github.com/mrexmelle/connect-idp/internal/tenure"
 )
 
 type Service struct {
 	Config           *config.Config
-	TenureRepository *tenure.Repository
+	TenureRepository *Repository
 }
 
 func NewService(
 	cfg *config.Config,
-	r *tenure.Repository) *Service {
+	r *Repository) *Service {
 	return &Service{
 		Config:           cfg,
 		TenureRepository: r,
 	}
 }
 
-func (s *Service) Create(request tenure.Entity) SingleResponseDto {
+func (s *Service) Create(request Entity) SingleResponseDto {
 	result, err := s.TenureRepository.Create(request)
 	return SingleResponseDto{
 		Tenure: result,

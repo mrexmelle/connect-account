@@ -1,4 +1,4 @@
-package currentOrganization
+package accountOrganization
 
 import (
 	"github.com/mrexmelle/connect-idp/internal/config"

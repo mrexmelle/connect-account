@@ -1,8 +1,9 @@
-package currentOrganization
+package accountOrganization
 
 import (
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/mapper"
+	"github.com/mrexmelle/connect-idp/internal/organization"
 )
 
 type Service struct {
@@ -20,9 +21,9 @@ func NewService(
 	}
 }
 
-func (s *Service) RetrieveByEhid(ehid string) ResponseDto {
+func (s *Service) RetrieveByEhid(ehid string) organization.MultipleResponseDto {
 	result, err := s.CurrentOrganizationRepository.FindByEhid(ehid)
-	return ResponseDto{
+	return organization.MultipleResponseDto{
 		Organizations: result,
 		Status:        mapper.ToStatus(err),
 	}

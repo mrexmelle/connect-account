@@ -37,15 +37,13 @@ func (s *Service) RetrieveByEhid(
 	}
 }
 
-func (s *Service) UpdateEndDateByEhidAndTenureId(
+func (s *Service) UpdateEndDateById(
 	req PatchRequestDto,
-	ehid string,
-	tenureId int,
+	id int,
 ) PatchResponseDto {
-	err := s.TenureRepository.UpdateEndDateByIdAndEhid(
+	err := s.TenureRepository.UpdateEndDateById(
 		req.Value,
-		tenureId,
-		ehid,
+		id,
 	)
 	return PatchResponseDto{
 		Status: mapper.ToStatus(err),

@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/jwtauth"
+	"github.com/mrexmelle/connect-idp/internal/accountOrganization"
 	"github.com/mrexmelle/connect-idp/internal/config"
-	"github.com/mrexmelle/connect-idp/internal/currentOrganization"
 	"github.com/mrexmelle/connect-idp/internal/profile"
 	"github.com/mrexmelle/connect-idp/internal/superior"
 	"github.com/mrexmelle/connect-idp/internal/tenure"
@@ -14,7 +14,7 @@ import (
 
 type Controller struct {
 	Config                     *config.Config
-	CurrentOrganizationService *currentOrganization.Service
+	AccountOrganizationService *accountOrganization.Service
 	ProfileService             *profile.Service
 	SuperiorService            *superior.Service
 	TenureService              *tenure.Service
@@ -22,14 +22,14 @@ type Controller struct {
 
 func NewController(
 	cfg *config.Config,
-	cos *currentOrganization.Service,
+	aos *accountOrganization.Service,
 	ps *profile.Service,
 	ss *superior.Service,
 	ts *tenure.Service,
 ) *Controller {
 	return &Controller{
 		Config:                     cfg,
-		CurrentOrganizationService: cos,
+		AccountOrganizationService: aos,
 		ProfileService:             ps,
 		SuperiorService:            ss,
 		TenureService:              ts,
@@ -58,13 +58,13 @@ func (c *Controller) GetProfile(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(responseBody))
 }
 
-func (c *Controller) GetCurrentOrganizations(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) GetOrganizations(w http.ResponseWriter, r *http.Request) {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {
 		http.Error(w, "GET failure: "+err.Error(), http.StatusUnauthorized)
 		return
 	}
-	response := c.CurrentOrganizationService.RetrieveByEhid(claims["sub"].(string))
+	response := c.AccountOrganizationService.RetrieveByEhid(claims["sub"].(string))
 	responseBody, _ := json.Marshal(&response)
 	w.Write([]byte(responseBody))
 }

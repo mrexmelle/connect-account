@@ -12,13 +12,12 @@ import (
 	"github.com/go-chi/jwtauth"
 	"github.com/mrexmelle/connect-idp/internal/account"
 	accountMe "github.com/mrexmelle/connect-idp/internal/account/me"
-	accountTenure "github.com/mrexmelle/connect-idp/internal/account/tenure"
+	"github.com/mrexmelle/connect-idp/internal/accountOrganization"
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/credential"
-	"github.com/mrexmelle/connect-idp/internal/currentOrganization"
 	"github.com/mrexmelle/connect-idp/internal/organization"
-	organizationMember "github.com/mrexmelle/connect-idp/internal/organization/member"
 	organizationTree "github.com/mrexmelle/connect-idp/internal/organization/tree"
+	"github.com/mrexmelle/connect-idp/internal/organizationMember"
 	"github.com/mrexmelle/connect-idp/internal/profile"
 	"github.com/mrexmelle/connect-idp/internal/session"
 	"github.com/mrexmelle/connect-idp/internal/superior"
@@ -53,7 +52,7 @@ func Serve(cmd *cobra.Command, args []string) {
 	container.Provide(tenure.NewRepository)
 	container.Provide(organization.NewRepository)
 	container.Provide(organizationMember.NewRepository)
-	container.Provide(currentOrganization.NewRepository)
+	container.Provide(accountOrganization.NewRepository)
 	container.Provide(superior.NewRepository)
 
 	container.Provide(account.NewService)
@@ -63,11 +62,11 @@ func Serve(cmd *cobra.Command, args []string) {
 	container.Provide(organization.NewService)
 	container.Provide(organizationTree.NewService)
 	container.Provide(organizationMember.NewService)
-	container.Provide(currentOrganization.NewService)
+	container.Provide(accountOrganization.NewService)
 	container.Provide(superior.NewService)
 
 	container.Provide(account.NewController)
-	container.Provide(accountTenure.NewController)
+	container.Provide(tenure.NewController)
 	container.Provide(accountMe.NewController)
 	container.Provide(session.NewController)
 	container.Provide(organization.NewController)
@@ -76,7 +75,7 @@ func Serve(cmd *cobra.Command, args []string) {
 
 	process := func(
 		accountController *account.Controller,
-		accountTenureController *accountTenure.Controller,
+		tenureController *tenure.Controller,
 		accountMeController *accountMe.Controller,
 		organizationController *organization.Controller,
 		organizationMemberController *organizationMember.Controller,
@@ -99,9 +98,9 @@ func Serve(cmd *cobra.Command, args []string) {
 			r.Delete("/{employee_id}", accountController.Delete)
 		})
 
-		r.Route("/accounts/{ehid}/tenures", func(r chi.Router) {
-			r.Post("/", accountTenureController.Post)
-			r.Patch("/{tenureId}/end-date", accountTenureController.PatchEndDate)
+		r.Route("/tenures", func(r chi.Router) {
+			r.Post("/", tenureController.Post)
+			r.Patch("/{id}/end-date", tenureController.PatchEndDate)
 		})
 
 		r.Route("/sessions", func(r chi.Router) {
@@ -140,7 +139,7 @@ func Serve(cmd *cobra.Command, args []string) {
 			r.Route("/accounts/me", func(r chi.Router) {
 				r.Get("/profile", accountMeController.GetProfile)
 				r.Get("/tenures", accountMeController.GetTenures)
-				r.Get("/current-organizations", accountMeController.GetCurrentOrganizations)
+				r.Get("/organizations", accountMeController.GetOrganizations)
 				r.Get("/superiors", accountMeController.GetSuperiors)
 			})
 		})

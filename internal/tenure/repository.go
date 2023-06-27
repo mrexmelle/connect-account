@@ -67,10 +67,9 @@ func (r *Repository) Create(req Entity) (Entity, error) {
 	return req, nil
 }
 
-func (r *Repository) UpdateEndDateByIdAndEhid(
+func (r *Repository) UpdateEndDateById(
 	endDate string,
 	id int,
-	ehid string,
 ) error {
 	ts, err := time.Parse("2006-01-02", endDate)
 	if err != nil {
@@ -78,7 +77,7 @@ func (r *Repository) UpdateEndDateByIdAndEhid(
 	}
 	result := r.Config.Db.
 		Table(r.TableName).
-		Where("id = ? AND ehid = ?", id, ehid).
+		Where("id = ?", id).
 		Updates(
 			map[string]interface{}{
 				"end_date":   datatypes.Date(ts),

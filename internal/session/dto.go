@@ -1,10 +1,10 @@
 package session
 
-type SessionPostRequest struct {
+type RequestDto struct {
 	EmployeeId string `json:"employeeId"`
 	Password   string `json:"password"`
 }
 
-type SessionPostResponse struct {
+type ResponseDto struct {
 	Token string `json:"token"`
 }

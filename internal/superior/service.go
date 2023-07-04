@@ -4,6 +4,7 @@ import (
 	"github.com/mrexmelle/connect-idp/internal/accountOrganization"
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/mapper"
+	"github.com/mrexmelle/connect-idp/internal/profile"
 )
 
 type Service struct {
@@ -28,14 +29,14 @@ func (s *Service) RetrieveByEhid(ehid string) ResponseDto {
 	orgs, err := s.AccountOrganizationRepository.FindByEhid(ehid)
 	if err != nil {
 		return ResponseDto{
-			Aggregate: Aggregate{},
+			Superiors: []profile.Entity{},
 			Status:    err.Error(),
 		}
 	}
 
 	result, err := s.SuperiorRepository.FindByOrganizationHierarchy(orgs[0].Hierarchy)
 	return ResponseDto{
-		Aggregate: result,
+		Superiors: result,
 		Status:    mapper.ToStatus(err),
 	}
 }

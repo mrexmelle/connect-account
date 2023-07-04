@@ -20,7 +20,7 @@ func NewController(cfg *config.Config, svc *Service) *Controller {
 }
 
 func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
-	var requestBody SessionPostRequest
+	var requestBody RequestDto
 	json.NewDecoder(r.Body).Decode(&requestBody)
 
 	queryResult, err := c.SessionService.Authenticate(requestBody)
@@ -52,7 +52,7 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 	responseBody, _ := json.Marshal(
-		&SessionPostResponse{Token: signingResult},
+		&ResponseDto{Token: signingResult},
 	)
 	w.Write([]byte(responseBody))
 }

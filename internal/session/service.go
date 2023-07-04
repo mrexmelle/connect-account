@@ -20,7 +20,7 @@ func NewService(cfg *config.Config, repo *credential.Repository) *Service {
 	}
 }
 
-func (s *Service) Authenticate(req SessionPostRequest) (bool, error) {
+func (s *Service) Authenticate(req RequestDto) (bool, error) {
 	return s.CredentialRepository.ExistsByEmployeeIdAndPassword(
 		req.EmployeeId,
 		req.Password,

@@ -1,6 +1,8 @@
 package superior
 
+import "github.com/mrexmelle/connect-idp/internal/profile"
+
 type ResponseDto struct {
-	Aggregate Aggregate `json:"profile"`
-	Status    string    `json:"status"`
+	Superiors []profile.Entity `json:"superiors"`
+	Status    string           `json:"status"`
 }

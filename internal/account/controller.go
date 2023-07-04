@@ -5,19 +5,38 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/mrexmelle/connect-idp/internal/accountOrganization"
 	"github.com/mrexmelle/connect-idp/internal/config"
 	"github.com/mrexmelle/connect-idp/internal/mapper"
+	"github.com/mrexmelle/connect-idp/internal/profile"
+	"github.com/mrexmelle/connect-idp/internal/superior"
+	"github.com/mrexmelle/connect-idp/internal/tenure"
 )
 
 type Controller struct {
-	Config         *config.Config
-	AccountService *Service
+	Config                     *config.Config
+	AccountService             *Service
+	AccountOrganizationService *accountOrganization.Service
+	ProfileService             *profile.Service
+	SuperiorService            *superior.Service
+	TenureService              *tenure.Service
 }
 
-func NewController(cfg *config.Config, svc *Service) *Controller {
+func NewController(
+	cfg *config.Config,
+	as *Service,
+	aos *accountOrganization.Service,
+	ps *profile.Service,
+	ss *superior.Service,
+	ts *tenure.Service,
+) *Controller {
 	return &Controller{
-		Config:         cfg,
-		AccountService: svc,
+		Config:                     cfg,
+		AccountService:             as,
+		AccountOrganizationService: aos,
+		ProfileService:             ps,
+		SuperiorService:            ss,
+		TenureService:              ts,
 	}
 }
 
@@ -57,5 +76,37 @@ func (c *Controller) Delete(w http.ResponseWriter, r *http.Request) {
 	responseBody, _ := json.Marshal(
 		&AccountResponse{Status: "OK"},
 	)
+	w.Write([]byte(responseBody))
+}
+
+func (c *Controller) GetTenures(w http.ResponseWriter, r *http.Request) {
+	ehid := chi.URLParam(r, "ehid")
+
+	response := c.TenureService.RetrieveByEhid(ehid)
+	responseBody, _ := json.Marshal(&response)
+	w.Write([]byte(responseBody))
+}
+
+func (c *Controller) GetProfile(w http.ResponseWriter, r *http.Request) {
+	ehid := chi.URLParam(r, "ehid")
+
+	response := c.ProfileService.RetrieveByEhid(ehid)
+	responseBody, _ := json.Marshal(&response)
+	w.Write([]byte(responseBody))
+}
+
+func (c *Controller) GetOrganizations(w http.ResponseWriter, r *http.Request) {
+	ehid := chi.URLParam(r, "ehid")
+
+	response := c.AccountOrganizationService.RetrieveByEhid(ehid)
+	responseBody, _ := json.Marshal(&response)
+	w.Write([]byte(responseBody))
+}
+
+func (c *Controller) GetSuperiors(w http.ResponseWriter, r *http.Request) {
+	ehid := chi.URLParam(r, "ehid")
+
+	response := c.SuperiorService.RetrieveByEhid(ehid)
+	responseBody, _ := json.Marshal(&response)
 	w.Write([]byte(responseBody))
 }

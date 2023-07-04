@@ -98,6 +98,13 @@ func Serve(cmd *cobra.Command, args []string) {
 			r.Delete("/{employee_id}", accountController.Delete)
 		})
 
+		r.Route("/accounts/{ehid}", func(r chi.Router) {
+			r.Get("/profile", accountController.GetProfile)
+			r.Get("/tenures", accountController.GetTenures)
+			r.Get("/organizations", accountController.GetOrganizations)
+			r.Get("/superiors", accountController.GetSuperiors)
+		})
+
 		r.Route("/tenures", func(r chi.Router) {
 			r.Post("/", tenureController.Post)
 			r.Patch("/{id}/end-date", tenureController.PatchEndDate)

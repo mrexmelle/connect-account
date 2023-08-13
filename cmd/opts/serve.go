@@ -55,6 +55,7 @@ func Serve(cmd *cobra.Command, args []string) {
 	container.Provide(accountOrganization.NewRepository)
 	container.Provide(superior.NewRepository)
 
+	container.Provide(credential.NewService)
 	container.Provide(account.NewService)
 	container.Provide(profile.NewService)
 	container.Provide(tenure.NewService)
@@ -148,6 +149,7 @@ func Serve(cmd *cobra.Command, args []string) {
 				r.Get("/tenures", accountMeController.GetTenures)
 				r.Get("/organizations", accountMeController.GetOrganizations)
 				r.Get("/superiors", accountMeController.GetSuperiors)
+				r.Patch("/password", accountMeController.PatchPassword)
 			})
 		})
 

@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/jwtauth"
 	"github.com/mrexmelle/connect-idp/internal/accountOrganization"
 	"github.com/mrexmelle/connect-idp/internal/config"
+	"github.com/mrexmelle/connect-idp/internal/credential"
 	"github.com/mrexmelle/connect-idp/internal/profile"
 	"github.com/mrexmelle/connect-idp/internal/superior"
 	"github.com/mrexmelle/connect-idp/internal/tenure"
@@ -15,6 +16,7 @@ import (
 type Controller struct {
 	Config                     *config.Config
 	AccountOrganizationService *accountOrganization.Service
+	CredentialService          *credential.Service
 	ProfileService             *profile.Service
 	SuperiorService            *superior.Service
 	TenureService              *tenure.Service
@@ -23,6 +25,7 @@ type Controller struct {
 func NewController(
 	cfg *config.Config,
 	aos *accountOrganization.Service,
+	cs *credential.Service,
 	ps *profile.Service,
 	ss *superior.Service,
 	ts *tenure.Service,
@@ -30,6 +33,7 @@ func NewController(
 	return &Controller{
 		Config:                     cfg,
 		AccountOrganizationService: aos,
+		CredentialService:          cs,
 		ProfileService:             ps,
 		SuperiorService:            ss,
 		TenureService:              ts,
@@ -77,5 +81,31 @@ func (c *Controller) GetSuperiors(w http.ResponseWriter, r *http.Request) {
 	}
 	response := c.SuperiorService.RetrieveByEhid(claims["sub"].(string))
 	responseBody, _ := json.Marshal(&response)
+	w.Write([]byte(responseBody))
+}
+
+func (c *Controller) PatchPassword(w http.ResponseWriter, r *http.Request) {
+	_, claims, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		http.Error(w, "PATCH failure: "+err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	var requestBody credential.PatchRequestDto
+	json.NewDecoder(r.Body).Decode(&requestBody)
+	if err != nil {
+		http.Error(w, "PATCH failure: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	profileResponse := c.ProfileService.RetrieveByEhid(claims["sub"].(string))
+	if err != nil {
+		http.Error(w, "PATCH failure: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	requestBody.EmployeeId = profileResponse.Profile.EmployeeId
+	response := c.CredentialService.PatchPassword(requestBody)
+	responseBody, _ := json.Marshal(&response)
+
 	w.Write([]byte(responseBody))
 }

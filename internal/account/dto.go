@@ -11,8 +11,3 @@ type AccountPostRequest struct {
 type AccountResponse struct {
 	Status string `json:"status"`
 }
-
-type AccountPasswordPatchRequest struct {
-	CurrentValue string `json:"currentValue"`
-	NewValue     string `json:"newValue"`
-}

@@ -73,10 +73,10 @@ func (r *Repository) DeleteByEmployeeId(employeeId string) error {
 func (r *Repository) UpdatePasswordByEmployeeIdAndPassword(
 	newPassword string,
 	employeeId string,
-	currentPassword int,
+	currentPassword string,
 ) error {
 	res := r.Config.Db.Exec(
-		"UPDATE TABLE "+r.TableName+" SET "+
+		"UPDATE "+r.TableName+" SET "+
 			"password_hash = CRYPT(?, GEN_SALT('bf', 8)), "+
 			"updated_at = NOW() "+
 			"WHERE employee_id = ? AND password_hash = CRYPT(?, password_hash)",
@@ -84,5 +84,8 @@ func (r *Repository) UpdatePasswordByEmployeeIdAndPassword(
 		employeeId,
 		currentPassword,
 	)
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
 	return res.Error
 }

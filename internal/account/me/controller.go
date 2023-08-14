@@ -98,14 +98,25 @@ func (c *Controller) PatchPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if requestBody.CurrentPassword == requestBody.NewPassword {
+		responseBody, _ := json.Marshal(&credential.PatchResponseDto{
+			Status: "OK",
+		})
+		w.Write([]byte(responseBody))
+		return
+	}
+
 	profileResponse := c.ProfileService.RetrieveByEhid(claims["sub"].(string))
 	if err != nil {
 		http.Error(w, "PATCH failure: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	requestBody.EmployeeId = profileResponse.Profile.EmployeeId
-	response := c.CredentialService.PatchPassword(requestBody)
+	response, err := c.CredentialService.PatchPassword(requestBody)
+	if err != nil {
+		http.Error(w, "PATCH failure: "+err.Error(), http.StatusNotFound)
+		return
+	}
 	responseBody, _ := json.Marshal(&response)
-
 	w.Write([]byte(responseBody))
 }

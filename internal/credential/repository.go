@@ -89,3 +89,19 @@ func (r *Repository) UpdatePasswordByEmployeeIdAndPassword(
 	}
 	return res.Error
 }
+
+func (r *Repository) ResetPasswordByEmployeeId(
+	employeeId string,
+) error {
+	res := r.Config.Db.Exec(
+		"UPDATE "+r.TableName+" SET "+
+			"password_hash = CRYPT(123, GEN_SALT('bf', 8)), "+
+			"updated_at = NOW() "+
+			"WHERE employee_id = ?",
+		employeeId,
+	)
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return res.Error
+}

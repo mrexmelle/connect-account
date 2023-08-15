@@ -99,7 +99,7 @@ func (c *Controller) PatchPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if requestBody.CurrentPassword == requestBody.NewPassword {
-		responseBody, _ := json.Marshal(&credential.PatchResponseDto{
+		responseBody, _ := json.Marshal(&credential.ResponseDto{
 			Status: "OK",
 		})
 		w.Write([]byte(responseBody))

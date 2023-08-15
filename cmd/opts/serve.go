@@ -104,6 +104,7 @@ func Serve(cmd *cobra.Command, args []string) {
 			r.Get("/tenures", accountController.GetTenures)
 			r.Get("/organizations", accountController.GetOrganizations)
 			r.Get("/superiors", accountController.GetSuperiors)
+			r.Post("/password-reset", accountController.PostPasswordReset)
 		})
 
 		r.Route("/tenures", func(r chi.Router) {

@@ -6,6 +6,6 @@ type PatchRequestDto struct {
 	NewPassword     string `json:"newPassword"`
 }
 
-type PatchResponseDto struct {
+type ResponseDto struct {
 	Status string `json:"status"`
 }

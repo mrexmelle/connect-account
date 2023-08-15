@@ -11,6 +11,7 @@ app:
     jwt:
       secret: 1nt3rst3ll4r-*-a5tR0
       valid-minute: 90
+    default-password: 123
   server:
     port: 8080
     

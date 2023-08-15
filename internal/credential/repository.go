@@ -95,9 +95,10 @@ func (r *Repository) ResetPasswordByEmployeeId(
 ) error {
 	res := r.Config.Db.Exec(
 		"UPDATE "+r.TableName+" SET "+
-			"password_hash = CRYPT(123, GEN_SALT('bf', 8)), "+
+			"password_hash = CRYPT(?, GEN_SALT('bf', 8)), "+
 			"updated_at = NOW() "+
 			"WHERE employee_id = ?",
+		r.Config.DefaultUserPassword,
 		employeeId,
 	)
 	if res.RowsAffected == 0 {

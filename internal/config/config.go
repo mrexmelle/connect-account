@@ -13,11 +13,12 @@ import (
 )
 
 type Config struct {
-	Profile        string
-	Db             *gorm.DB
-	TokenAuth      *jwtauth.JWTAuth
-	JwtValidMinute int
-	Port           int
+	Profile             string
+	Db                  *gorm.DB
+	TokenAuth           *jwtauth.JWTAuth
+	JwtValidMinute      int
+	Port                int
+	DefaultUserPassword string
 }
 
 func New(
@@ -43,12 +44,14 @@ func New(
 	jwta := CreateTokenAuth("app.security.jwt.secret")
 	jwtvm := viper.GetInt("app.security.jwt.valid-minute")
 	port := viper.GetInt("app.server.port")
+	defaultUserPassword := viper.GetString("app.security.default-user-password")
 
 	return Config{
-		Db:             db,
-		TokenAuth:      jwta,
-		JwtValidMinute: jwtvm,
-		Port:           port,
+		Db:                  db,
+		TokenAuth:           jwta,
+		JwtValidMinute:      jwtvm,
+		Port:                port,
+		DefaultUserPassword: defaultUserPassword,
 	}, nil
 }
 

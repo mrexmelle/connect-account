@@ -20,10 +20,14 @@ func NewService(
 	}
 }
 
-func (s *Service) PatchPassword(req PatchRequestDto) (PatchResponseDto, error) {
+func (s *Service) PatchPassword(req PatchRequestDto) (ResponseDto, error) {
 	err := s.CredentialRepository.UpdatePasswordByEmployeeIdAndPassword(
 		req.NewPassword, req.EmployeeId, req.CurrentPassword)
-	return PatchResponseDto{
+	return ResponseDto{
 		Status: mapper.ToStatus(err),
 	}, err
+}
+
+func (s *Service) ResetPassword(employeeId string) error {
+	return s.CredentialRepository.ResetPasswordByEmployeeId(employeeId)
 }

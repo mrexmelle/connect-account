@@ -13,7 +13,7 @@ services:
       - ./init-db:/docker-entrypoint-initdb.d
   core:
     container_name: connect-idp-core
-    image: ghcr.io/mrexmelle/connect-idp:0.1.0
+    image: ghcr.io/mrexmelle/connect-idp:0.2.1
     environment:
       - APP_PROFILE=docked
     ports:

@@ -45,6 +45,7 @@ func (c *Controller) Post(w http.ResponseWriter, r *http.Request) {
 		w, &http.Cookie{
 			Name:     "jwt",
 			Value:    signingResult,
+			Path:     "/",
 			Expires:  exp,
 			HttpOnly: true,
 			Secure:   true,
